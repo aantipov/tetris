@@ -1,9 +1,11 @@
+import type { BoardT } from "./shapes";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, View, Button } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
 import { BasicShape, ShapeI } from "./shapes";
-import type { BoardT } from "./shapes";
+import MIcons from "@expo/vector-icons/MaterialIcons";
+import CircleButtonWithIcon from "./components/Button";
 
 function createBoard(): number[][] {
   const board = [];
@@ -57,11 +59,19 @@ export default function TetrisApp() {
           );
         })}
       </View>
-      <View style={{ flex: 1, gap: 15, marginTop: 20 }}>
-        <Button title="Move Left" onPress={() => activeShape.moveLeft()} />
-        <Button title="Move Right" onPress={() => activeShape.moveRight()} />
-        <Button
-          title="Move Down"
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 30,
+          marginTop: 20,
+          marginBottom: 40,
+        }}
+      >
+        <CircleButtonWithIcon onPress={() => activeShape.moveLeft()}>
+          <MIcons name="arrow-back" size={48} color="white" />
+        </CircleButtonWithIcon>
+        <CircleButtonWithIcon
           onPress={() => {
             if (activeShape.hasBottomCollision()) {
               // merge active shape into board and create a new active shape
@@ -74,8 +84,17 @@ export default function TetrisApp() {
             }
             activeShape.moveDown();
           }}
-        />
-        <Button title="Rotate" onPress={() => activeShape.rotate()} />
+        >
+          <MIcons name="arrow-downward" size={48} color="white" />
+        </CircleButtonWithIcon>
+        <CircleButtonWithIcon onPress={() => activeShape.moveRight()}>
+          <MIcons name="arrow-forward" size={48} color="white" />
+        </CircleButtonWithIcon>
+        <CircleButtonWithIcon onPress={() => activeShape.rotate()}>
+          <MIcons name="rotate-left" size={48} color="white" />
+        </CircleButtonWithIcon>
+      </View>
+      <View>
         <Button title="Reset" onPress={reset} />
       </View>
       <StatusBar style="auto" />
