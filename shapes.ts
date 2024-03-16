@@ -3,10 +3,11 @@ type Shape = number[][]; // Each shape represents on of 19 Fixed tetromino shape
 type ShapeGroup = Shape[]; // A group of shapes - a fixed tetromino shape plus its rotations
 type ShapeType = "I" | "J" | "L" | "O" | "S" | "T" | "Z";
 type Angle = 0 | 90 | 180 | 270;
+type Postition = [number, number];
 
 export class BasicShape {
   name: string;
-  position: [number, number];
+  position: Postition;
   board: BoardT;
   shape: number[][];
   shapeIndex: number;
@@ -31,8 +32,8 @@ export class BasicShape {
     return this.shape.some(([r, c]) => r === row && c === col);
   }
   hasBottomCollision() {
+    // Check if one of the cells is at the bottom of the board
     if (this.shape.some(([r, c]) => r === 19)) {
-      // One of the cells is at the bottom of the board
       return true;
     }
     // Check if one of the cells has a filled board cell below it
@@ -42,6 +43,11 @@ export class BasicShape {
     if (this.shape.some(([, c]) => c === 9)) {
       return this;
     }
+    // Check if one of the cells has a filled board cell to the right of it
+    if (this.shape.some(([r, c]) => this.board[r][c + 1] === 1)) {
+      return this;
+    }
+
     this.position = [this.position[0], this.position[1] + 1];
     this.shape = this.shape.map(([r, c]) => [r, c + 1]);
     this.forceUpdateFn();
@@ -51,6 +57,11 @@ export class BasicShape {
     if (this.shape.some(([, c]) => c === 0)) {
       return this;
     }
+    // Check if one of the cells has a filled board cell to the left of it
+    if (this.shape.some(([r, c]) => this.board[r][c - 1] === 1)) {
+      return this;
+    }
+
     this.position = [this.position[0], this.position[1] - 1];
     this.shape = this.shape.map(([r, c]) => [r, c - 1]);
     this.forceUpdateFn();
@@ -73,10 +84,10 @@ const IShapes: Record<Angle, Shape> = {
     [1, 3],
   ],
   90: [
-    [0, 2],
-    [1, 2],
-    [2, 2],
-    [3, 2],
+    [0, 1],
+    [1, 1],
+    [2, 1],
+    [3, 1],
   ],
   180: [
     [2, 0],
@@ -85,10 +96,10 @@ const IShapes: Record<Angle, Shape> = {
     [2, 3],
   ],
   270: [
-    [0, 1],
-    [1, 1],
-    [2, 1],
-    [3, 1],
+    [0, 2],
+    [1, 2],
+    [2, 2],
+    [3, 2],
   ],
 };
 // Define Tetrimino shapes
@@ -98,11 +109,51 @@ export class ShapeI extends BasicShape {
     super("ShapeIV", IShapes[0], board, forceUpdateFn);
   }
   rotate() {
-    this.angle = ((this.angle + 90) % 360) as Angle;
-    this.shape = IShapes[this.angle].map(([r, c]) => [
+    const nextAngle = ((this.angle + 90) % 360) as Angle;
+    let nextShape = IShapes[this.angle].map(([r, c]) => [
       r + this.position[0],
       c + this.position[1],
     ]);
+    let nextPosition: Postition = [...this.position];
+    // Move shape to the right if it's out of the left border of the board
+    if (nextShape.some(([r, c]) => c === -1)) {
+      nextShape = nextShape.map(([r, c]) => [r, c + 1]);
+      nextPosition = [nextPosition[0], nextPosition[1] + 1];
+      if (nextShape.some(([r, c]) => c === -1)) {
+        nextShape = nextShape.map(([r, c]) => [r, c + 1]);
+        nextPosition = [nextPosition[0], nextPosition[1] + 1];
+        if (nextShape.some(([r, c]) => c === -1)) {
+          return this;
+        }
+      }
+    }
+
+    // Move shape to the left if it's out of the right border of the board
+    if (nextShape.some(([r, c]) => c === 10)) {
+      nextShape = nextShape.map(([r, c]) => [r, c - 1]);
+      nextPosition = [nextPosition[0], nextPosition[1] - 1];
+      if (nextShape.some(([r, c]) => c === 10)) {
+        nextShape = nextShape.map(([r, c]) => [r, c - 1]);
+        nextPosition = [nextPosition[0], nextPosition[1] - 1];
+        if (nextShape.some(([r, c]) => c === 10)) {
+          return this;
+        }
+      }
+    }
+
+    // Check if the shape is colliding with the bottom of the board
+    if (nextShape.some(([r, c]) => r === 20)) {
+      return this;
+    }
+
+    // Check if the shape is colliding with a filled cell
+    if (nextShape.some(([r, c]) => this.board[r][c] === 1)) {
+      return this;
+    }
+
+    this.position = nextPosition;
+    this.angle = nextAngle;
+    this.shape = nextShape;
     this.forceUpdateFn();
     return this;
   }
