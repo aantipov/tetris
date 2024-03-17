@@ -1,25 +1,26 @@
 export type BoardT = number[][]; // 20x10 grij
 type Shape = number[][]; // Each shape represents on of 19 Fixed tetromino shapes https://en.wikipedia.org/wiki/Tetromino
-type ShapeGroup = Shape[]; // A group of shapes - a fixed tetromino shape plus its rotations
+type ShapeGroup = Record<Angle, Shape>; // A group of shapes - a fixed tetromino shape plus its rotations
 type ShapeType = "I" | "J" | "L" | "O" | "S" | "T" | "Z";
 type Angle = 0 | 90 | 180 | 270;
 type Postition = [number, number];
 
 export class BasicShape {
-  name: string;
+  angle: Angle = 0;
   position: Postition;
   board: BoardT;
-  shape: number[][];
+  shape: Shape;
+  shapes: ShapeGroup;
   shapeIndex: number;
   forceUpdateFn: () => void;
   constructor(
-    name: string,
-    shape: Shape,
+    shapes: ShapeGroup, // A group of shapes - a fixed tetromino shape plus its rotations
     board: BoardT,
     forceUpdateFn: () => void
   ) {
-    this.name = name;
+    const shape = shapes[0];
     this.board = board;
+    this.shapes = shapes;
     this.shapeIndex = 0;
     this.position = shape.length === 4 ? [0, 3] : [0, 4];
     this.shape = shape.map(([r, c]) => [
@@ -79,44 +80,9 @@ export class BasicShape {
     }
   }
 
-  rotate() {}
-}
-
-const IShapes: Record<Angle, Shape> = {
-  0: [
-    [1, 0],
-    [1, 1],
-    [1, 2],
-    [1, 3],
-  ],
-  90: [
-    [0, 1],
-    [1, 1],
-    [2, 1],
-    [3, 1],
-  ],
-  180: [
-    [2, 0],
-    [2, 1],
-    [2, 2],
-    [2, 3],
-  ],
-  270: [
-    [0, 2],
-    [1, 2],
-    [2, 2],
-    [3, 2],
-  ],
-};
-// Define Tetrimino shapes
-export class ShapeI extends BasicShape {
-  angle: Angle = 0;
-  constructor(board: BoardT, forceUpdateFn: () => void) {
-    super("ShapeIV", IShapes[0], board, forceUpdateFn);
-  }
   rotate() {
     const nextAngle = ((this.angle + 90) % 360) as Angle;
-    let nextShape = IShapes[this.angle].map(([r, c]) => [
+    let nextShape = this.shapes[this.angle].map(([r, c]) => [
       r + this.position[0],
       c + this.position[1],
     ]);
@@ -162,5 +128,74 @@ export class ShapeI extends BasicShape {
     this.shape = nextShape;
     this.forceUpdateFn();
     return this;
+  }
+}
+
+const IShapes: ShapeGroup = {
+  0: [
+    [1, 0],
+    [1, 1],
+    [1, 2],
+    [1, 3],
+  ],
+  90: [
+    [0, 1],
+    [1, 1],
+    [2, 1],
+    [3, 1],
+  ],
+  180: [
+    [2, 0],
+    [2, 1],
+    [2, 2],
+    [2, 3],
+  ],
+  270: [
+    [0, 2],
+    [1, 2],
+    [2, 2],
+    [3, 2],
+  ],
+};
+
+const JShapes: ShapeGroup = {
+  0: [
+    [0, 0],
+    [1, 0],
+    [1, 1],
+    [1, 2],
+  ],
+  90: [
+    [0, 1],
+    [1, 1],
+    [2, 0],
+    [2, 1],
+  ],
+  180: [
+    [1, 0],
+    [1, 1],
+    [1, 2],
+    [2, 2],
+  ],
+  270: [
+    [0, 1],
+    [0, 2],
+    [1, 1],
+    [2, 1],
+  ],
+};
+
+// Define Tetrimino shapes
+export class ShapeI extends BasicShape {
+  name = "ShapeI";
+  constructor(board: BoardT, forceUpdateFn: () => void) {
+    super(IShapes, board, forceUpdateFn);
+  }
+}
+
+export class ShapeJ extends BasicShape {
+  name = "ShapeJ";
+  constructor(board: BoardT, forceUpdateFn: () => void) {
+    super(JShapes, board, forceUpdateFn);
   }
 }

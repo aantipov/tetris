@@ -1,9 +1,9 @@
 import type { BoardT } from "./shapes";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, View, Button } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
-import { BasicShape, ShapeI } from "./shapes";
+import { BasicShape, ShapeI, ShapeJ } from "./shapes";
 import MIcons from "@expo/vector-icons/MaterialIcons";
 import CircleButtonWithIcon from "./components/Button";
 
@@ -23,12 +23,12 @@ export default function TetrisApp() {
   const forceUpdate = useForceUpdate();
   const [board, setBoard] = useState<BoardT>(createBoard());
   const [activeShape, setActiveShape] = useState<BasicShape>(
-    new ShapeI(board, forceUpdate)
+    new ShapeJ(board, forceUpdate)
   );
 
   const reset = () => {
     setBoard(createBoard());
-    setActiveShape(new ShapeI(board, forceUpdate));
+    setActiveShape(new ShapeJ(board, forceUpdate));
     forceUpdate();
   };
 
@@ -75,7 +75,7 @@ export default function TetrisApp() {
               activeShape.shape.forEach(([r, c]) => {
                 board[r][c] = 1;
               });
-              setActiveShape(new ShapeI(board, forceUpdate));
+              setActiveShape(new ShapeJ(board, forceUpdate));
               forceUpdate();
               return;
             }
@@ -103,7 +103,7 @@ export default function TetrisApp() {
               activeShape.shape.forEach(([r, c]) => {
                 board[r][c] = 1;
               });
-              setActiveShape(new ShapeI(board, forceUpdate));
+              setActiveShape(new ShapeJ(board, forceUpdate));
               forceUpdate();
               return;
             }
