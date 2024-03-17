@@ -16,13 +16,14 @@ export class BasicShape {
   constructor(
     shapes: ShapeGroup, // A group of shapes - a fixed tetromino shape plus its rotations
     board: BoardT,
+    startPostition: Postition,
     forceUpdateFn: () => void
   ) {
     const shape = shapes[0];
     this.board = board;
     this.shapes = shapes;
     this.shapeIndex = 0;
-    this.position = shape.length === 4 ? [0, 3] : [0, 4];
+    this.position = startPostition;
     this.shape = shape.map(([r, c]) => [
       r + this.position[0],
       c + this.position[1],
@@ -212,29 +213,62 @@ const LShapes: ShapeGroup = {
   ],
 };
 
+const OShapes: ShapeGroup = {
+  0: [
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1],
+  ],
+  90: [
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1],
+  ],
+  180: [
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1],
+  ],
+  270: [
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1],
+  ],
+};
+
 // Define Tetrimino shapes
 class ShapeI extends BasicShape {
   name = "ShapeI";
   constructor(board: BoardT, forceUpdateFn: () => void) {
-    super(IShapes, board, forceUpdateFn);
+    super(IShapes, board, [0, 3], forceUpdateFn);
   }
 }
 
 class ShapeJ extends BasicShape {
   name = "ShapeJ";
   constructor(board: BoardT, forceUpdateFn: () => void) {
-    super(JShapes, board, forceUpdateFn);
+    super(JShapes, board, [0, 3], forceUpdateFn);
   }
 }
 
 class ShapeL extends BasicShape {
   name = "ShapeL";
   constructor(board: BoardT, forceUpdateFn: () => void) {
-    super(LShapes, board, forceUpdateFn);
+    super(LShapes, board, [0, 3], forceUpdateFn);
+  }
+}
+class ShapeO extends BasicShape {
+  name = "ShapeO";
+  constructor(board: BoardT, forceUpdateFn: () => void) {
+    super(OShapes, board, [0, 4], forceUpdateFn);
   }
 }
 
-export const shapesConstructors = [ShapeI, ShapeJ, ShapeL];
+export const shapesConstructors = [ShapeI, ShapeJ, ShapeL, ShapeO];
 
 export class ShapesBag {
   shapes: any[];
