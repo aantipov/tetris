@@ -25,15 +25,10 @@ export default function TetrisApp() {
   const [activeShape, setActiveShape] = useState<BasicShape>(
     new ShapeI(board, forceUpdate)
   );
-  useEffect(() => {
-    activeShape.moveRight().moveRight().moveDown().moveDown();
-    forceUpdate();
-  }, []);
 
   const reset = () => {
     setBoard(createBoard());
     setActiveShape(new ShapeI(board, forceUpdate));
-    activeShape.moveRight().moveRight().moveDown().moveDown();
     forceUpdate();
   };
 
@@ -59,13 +54,15 @@ export default function TetrisApp() {
           );
         })}
       </View>
+
+      {/* Controls */}
       <View
         style={{
           flexDirection: "row",
           flexWrap: "wrap",
           gap: 30,
           marginTop: 20,
-          marginBottom: 40,
+          marginBottom: 30,
         }}
       >
         <CircleButtonWithIcon onPress={() => activeShape.moveLeft()}>
@@ -94,7 +91,29 @@ export default function TetrisApp() {
           <MIcons name="rotate-left" size={48} color="white" />
         </CircleButtonWithIcon>
       </View>
-      <View>
+      <View
+        style={{
+          marginLeft: -85,
+        }}
+      >
+        <CircleButtonWithIcon
+          onPress={() => {
+            if (activeShape.hasBottomCollision()) {
+              // merge active shape into board and create a new active shape
+              activeShape.shape.forEach(([r, c]) => {
+                board[r][c] = 1;
+              });
+              setActiveShape(new ShapeI(board, forceUpdate));
+              forceUpdate();
+              return;
+            }
+            activeShape.drop();
+          }}
+        >
+          <MIcons name="vertical-align-bottom" size={48} color="white" />
+        </CircleButtonWithIcon>
+      </View>
+      <View style={{ marginTop: 48 }}>
         <Button title="Reset" onPress={reset} />
       </View>
       <StatusBar style="auto" />

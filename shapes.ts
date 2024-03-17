@@ -73,6 +73,12 @@ export class BasicShape {
     this.forceUpdateFn();
     return this;
   }
+  drop() {
+    while (!this.hasBottomCollision()) {
+      this.moveDown();
+    }
+  }
+
   rotate() {}
 }
 
