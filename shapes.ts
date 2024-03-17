@@ -185,6 +185,33 @@ const JShapes: ShapeGroup = {
   ],
 };
 
+const LShapes: ShapeGroup = {
+  0: [
+    [1, 0],
+    [1, 1],
+    [1, 2],
+    [0, 2],
+  ],
+  90: [
+    [0, 0],
+    [0, 1],
+    [1, 1],
+    [2, 1],
+  ],
+  180: [
+    [1, 0],
+    [1, 1],
+    [1, 2],
+    [2, 0],
+  ],
+  270: [
+    [0, 1],
+    [1, 1],
+    [2, 1],
+    [2, 2],
+  ],
+};
+
 // Define Tetrimino shapes
 class ShapeI extends BasicShape {
   name = "ShapeI";
@@ -200,7 +227,14 @@ class ShapeJ extends BasicShape {
   }
 }
 
-export const shapesConstructors = [ShapeI, ShapeJ];
+class ShapeL extends BasicShape {
+  name = "ShapeL";
+  constructor(board: BoardT, forceUpdateFn: () => void) {
+    super(LShapes, board, forceUpdateFn);
+  }
+}
+
+export const shapesConstructors = [ShapeI, ShapeJ, ShapeL];
 
 export class ShapesBag {
   shapes: any[];
