@@ -186,16 +186,39 @@ const JShapes: ShapeGroup = {
 };
 
 // Define Tetrimino shapes
-export class ShapeI extends BasicShape {
+class ShapeI extends BasicShape {
   name = "ShapeI";
   constructor(board: BoardT, forceUpdateFn: () => void) {
     super(IShapes, board, forceUpdateFn);
   }
 }
 
-export class ShapeJ extends BasicShape {
+class ShapeJ extends BasicShape {
   name = "ShapeJ";
   constructor(board: BoardT, forceUpdateFn: () => void) {
     super(JShapes, board, forceUpdateFn);
+  }
+}
+
+export const shapesConstructors = [ShapeI, ShapeJ];
+
+export class ShapesBag {
+  shapes: any[];
+  board: BoardT;
+  forceUpdateFn: () => void;
+
+  constructor(board: BoardT, forceUpdateFn: () => void) {
+    this.shapes = [...shapesConstructors];
+    this.board = board;
+    this.forceUpdateFn = forceUpdateFn;
+  }
+
+  getNextShape() {
+    if (this.shapes.length === 0) {
+      this.shapes = [...shapesConstructors];
+    }
+    const nextRandomIndex = Math.floor(Math.random() * this.shapes.length);
+    const Shape = this.shapes.splice(nextRandomIndex, 1)[0];
+    return new Shape(this.board, this.forceUpdateFn);
   }
 }

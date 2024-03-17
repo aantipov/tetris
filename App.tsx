@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { StyleSheet, View, Button } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
-import { BasicShape, ShapeI, ShapeJ } from "./shapes";
+import { BasicShape, ShapesBag } from "./shapes";
 import MIcons from "@expo/vector-icons/MaterialIcons";
 import CircleButtonWithIcon from "./components/Button";
 
@@ -22,13 +22,14 @@ function createBoard(): number[][] {
 export default function TetrisApp() {
   const forceUpdate = useForceUpdate();
   const [board, setBoard] = useState<BoardT>(createBoard());
+  const [shapeBag] = useState<ShapesBag>(new ShapesBag(board, forceUpdate));
   const [activeShape, setActiveShape] = useState<BasicShape>(
-    new ShapeJ(board, forceUpdate)
+    shapeBag.getNextShape()
   );
 
   const reset = () => {
     setBoard(createBoard());
-    setActiveShape(new ShapeJ(board, forceUpdate));
+    setActiveShape(shapeBag.getNextShape());
     forceUpdate();
   };
 
@@ -65,9 +66,11 @@ export default function TetrisApp() {
           marginBottom: 30,
         }}
       >
+        {/* Move Left Button */}
         <CircleButtonWithIcon onPress={() => activeShape.moveLeft()}>
           <MIcons name="arrow-back" size={48} color="white" />
         </CircleButtonWithIcon>
+        {/* Move Down button */}
         <CircleButtonWithIcon
           onPress={() => {
             if (activeShape.hasBottomCollision()) {
@@ -75,7 +78,7 @@ export default function TetrisApp() {
               activeShape.shape.forEach(([r, c]) => {
                 board[r][c] = 1;
               });
-              setActiveShape(new ShapeJ(board, forceUpdate));
+              setActiveShape(shapeBag.getNextShape());
               forceUpdate();
               return;
             }
@@ -84,13 +87,16 @@ export default function TetrisApp() {
         >
           <MIcons name="arrow-downward" size={48} color="white" />
         </CircleButtonWithIcon>
+        {/* Move Right button */}
         <CircleButtonWithIcon onPress={() => activeShape.moveRight()}>
           <MIcons name="arrow-forward" size={48} color="white" />
         </CircleButtonWithIcon>
+        {/* Rotate button */}
         <CircleButtonWithIcon onPress={() => activeShape.rotate()}>
           <MIcons name="rotate-left" size={48} color="white" />
         </CircleButtonWithIcon>
       </View>
+      {/* Drop button */}
       <View
         style={{
           marginLeft: -85,
@@ -103,7 +109,7 @@ export default function TetrisApp() {
               activeShape.shape.forEach(([r, c]) => {
                 board[r][c] = 1;
               });
-              setActiveShape(new ShapeJ(board, forceUpdate));
+              setActiveShape(shapeBag.getNextShape());
               forceUpdate();
               return;
             }
@@ -113,6 +119,7 @@ export default function TetrisApp() {
           <MIcons name="vertical-align-bottom" size={48} color="white" />
         </CircleButtonWithIcon>
       </View>
+      {/* Reset Button */}
       <View style={{ marginTop: 48 }}>
         <Button title="Reset" onPress={reset} />
       </View>
