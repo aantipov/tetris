@@ -240,6 +240,87 @@ const OShapes: ShapeGroup = {
   ],
 };
 
+const SShapes: ShapeGroup = {
+  0: [
+    [0, 1],
+    [0, 2],
+    [1, 0],
+    [1, 1],
+  ],
+  90: [
+    [0, 0],
+    [1, 0],
+    [1, 1],
+    [2, 1],
+  ],
+  180: [
+    [1, 1],
+    [1, 2],
+    [2, 0],
+    [2, 1],
+  ],
+  270: [
+    [0, 1],
+    [1, 1],
+    [1, 2],
+    [2, 2],
+  ],
+};
+
+const TShapes: ShapeGroup = {
+  0: [
+    [0, 1],
+    [1, 0],
+    [1, 1],
+    [1, 2],
+  ],
+  90: [
+    [0, 1],
+    [1, 1],
+    [2, 1],
+    [1, 0],
+  ],
+  180: [
+    [1, 0],
+    [1, 1],
+    [1, 2],
+    [2, 1],
+  ],
+  270: [
+    [0, 1],
+    [1, 1],
+    [2, 1],
+    [1, 2],
+  ],
+};
+
+const ZSHapes: ShapeGroup = {
+  0: [
+    [0, 0],
+    [0, 1],
+    [1, 1],
+    [1, 2],
+  ],
+  90: [
+    [0, 1],
+    [1, 0],
+    [1, 1],
+    [2, 0],
+  ],
+  180: [
+    [1, 0],
+    [1, 1],
+    [2, 1],
+    [2, 2],
+  ],
+  270: [
+    [0, 2],
+    [1, 1],
+    [1, 2],
+    [2, 1],
+  ],
+};
+
 // Define Tetrimino shapes
 class ShapeI extends BasicShape {
   name = "ShapeI";
@@ -267,8 +348,34 @@ class ShapeO extends BasicShape {
     super(OShapes, board, [0, 4], forceUpdateFn);
   }
 }
+class ShapeS extends BasicShape {
+  name = "ShapeS";
+  constructor(board: BoardT, forceUpdateFn: () => void) {
+    super(SShapes, board, [0, 3], forceUpdateFn);
+  }
+}
+class ShapeT extends BasicShape {
+  name = "ShapeT";
+  constructor(board: BoardT, forceUpdateFn: () => void) {
+    super(TShapes, board, [0, 3], forceUpdateFn);
+  }
+}
+class ShapeZ extends BasicShape {
+  name = "ShapeZ";
+  constructor(board: BoardT, forceUpdateFn: () => void) {
+    super(ZSHapes, board, [0, 3], forceUpdateFn);
+  }
+}
 
-export const shapesConstructors = [ShapeI, ShapeJ, ShapeL, ShapeO];
+export const shapesConstructors = [
+  ShapeI,
+  ShapeJ,
+  ShapeL,
+  ShapeO,
+  ShapeS,
+  ShapeT,
+  ShapeZ,
+];
 
 export class ShapesBag {
   shapes: any[];
