@@ -83,7 +83,7 @@ export class BasicShape {
 
   rotate() {
     const nextAngle = ((this.angle + 90) % 360) as Angle;
-    let nextShape = this.shapes[this.angle].map(([r, c]) => [
+    let nextShape = this.shapes[nextAngle].map(([r, c]) => [
       r + this.position[0],
       c + this.position[1],
     ]);
