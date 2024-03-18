@@ -78,6 +78,13 @@ export default function TetrisApp() {
               activeShape.shape.forEach(([r, c]) => {
                 board[r][c] = 1;
               });
+              // remove full lines
+              for (let i = 0; i < 20; i++) {
+                if (board[i].every((cell) => cell === 1)) {
+                  board.splice(i, 1);
+                  board.unshift(new Array(10).fill(0));
+                }
+              }
               setActiveShape(shapeBag.getNextShape());
               forceUpdate();
               return;
