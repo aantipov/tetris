@@ -1,6 +1,6 @@
 import type { BoardT } from "./shapes";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, View, Button } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
 import { BasicShape, ShapesBag } from "./shapes";
@@ -22,15 +22,35 @@ function createBoard(): number[][] {
 export default function TetrisApp() {
   const forceUpdate = useForceUpdate();
   const [board, setBoard] = useState<BoardT>(createBoard());
-  const [shapeBag] = useState<ShapesBag>(new ShapesBag(board, forceUpdate));
+  const [shapesBag, setShapesBag] = useState<ShapesBag>(
+    new ShapesBag(board, forceUpdate)
+  );
   const [activeShape, setActiveShape] = useState<BasicShape>(
-    shapeBag.getNextShape()
+    shapesBag.getNextShape()
   );
 
+  // Move the active shape down every 1 second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (activeShape.hasBottomCollision()) {
+        // merge active shape into board and create a new active shape
+        activeShape.shape.forEach(([r, c]) => {
+          board[r][c] = 1;
+        });
+        setActiveShape(shapesBag.getNextShape());
+        return;
+      }
+      activeShape.moveDown();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeShape]);
+
   const reset = () => {
-    setBoard(createBoard());
-    setActiveShape(shapeBag.getNextShape());
-    forceUpdate();
+    const newBoard = createBoard();
+    const newShapesBag = new ShapesBag(newBoard, forceUpdate);
+    setBoard(newBoard);
+    setShapesBag(newShapesBag);
+    setActiveShape(newShapesBag.getNextShape());
   };
 
   return (
@@ -85,7 +105,7 @@ export default function TetrisApp() {
                   board.unshift(new Array(10).fill(0));
                 }
               }
-              setActiveShape(shapeBag.getNextShape());
+              setActiveShape(shapesBag.getNextShape());
               forceUpdate();
               return;
             }
@@ -116,7 +136,7 @@ export default function TetrisApp() {
               activeShape.shape.forEach(([r, c]) => {
                 board[r][c] = 1;
               });
-              setActiveShape(shapeBag.getNextShape());
+              setActiveShape(shapesBag.getNextShape());
               forceUpdate();
               return;
             }
