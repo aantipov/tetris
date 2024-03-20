@@ -21,11 +21,11 @@ function createBoard(): number[][] {
 
 export default function TetrisApp() {
   const forceUpdate = useForceUpdate();
-  const [board, setBoard] = useState<BoardT>(createBoard());
+  const [board, setBoard] = useState<BoardT>(() => createBoard());
   const [shapesBag, setShapesBag] = useState<ShapesBag>(
-    new ShapesBag(board, forceUpdate)
+    () => new ShapesBag(board, forceUpdate)
   );
-  const [activeShape, setActiveShape] = useState<BasicShape>(
+  const [activeShape, setActiveShape] = useState<BasicShape>(() =>
     shapesBag.getNextShape()
   );
 
