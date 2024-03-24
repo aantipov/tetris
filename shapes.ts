@@ -1,9 +1,9 @@
 export type BoardT = number[][]; // 20x10 grij
-type Shape = number[][]; // Each shape represents on of 19 Fixed tetromino shapes https://en.wikipedia.org/wiki/Tetromino
-type ShapeGroup = Record<Angle, Shape>; // A group of shapes - a fixed tetromino shape plus its rotations
-type ShapeType = "I" | "J" | "L" | "O" | "S" | "T" | "Z";
-type Angle = 0 | 90 | 180 | 270;
-type Postition = [number, number];
+export type Shape = number[][]; // Each shape represents on of 19 Fixed tetromino shapes https://en.wikipedia.org/wiki/Tetromino
+export type ShapeGroup = Record<Angle, Shape>; // A group of shapes - a fixed tetromino shape plus its rotations
+export type ShapeType = "I" | "J" | "L" | "O" | "S" | "T" | "Z";
+export type Angle = 0 | 90 | 180 | 270;
+export type Postition = [number, number];
 
 export class BasicShape {
   angle: Angle = 0;
@@ -33,13 +33,9 @@ export class BasicShape {
   hasCell(row: number, col: number) {
     return this.shape.some(([r, c]) => r === row && c === col);
   }
-  hasBottomCollision() {
-    // Check if one of the cells is at the bottom of the board
-    if (this.shape.some(([r, c]) => r === 19)) {
-      return true;
-    }
-    // Check if one of the cells has a filled board cell below it
-    return this.shape.some(([r, c]) => this.board[r + 1][c] === 1);
+  canMoveDown() {
+    // Check if one of the shape's cells is at the bottom of the board or has a filled board cell below it
+    return this.shape.every(([r, c]) => r < 19 && this.board[r + 1][c] === 0);
   }
   moveRight() {
     if (this.shape.some(([, c]) => c === 9)) {
@@ -72,11 +68,10 @@ export class BasicShape {
   moveDown() {
     this.position = [this.position[0] + 1, this.position[1]];
     this.shape = this.shape.map(([r, c]) => [r + 1, c]);
-    this.forceUpdateFn();
     return this;
   }
   drop() {
-    while (!this.hasBottomCollision()) {
+    while (!this.canMoveDown()) {
       this.moveDown();
     }
   }
@@ -321,6 +316,16 @@ const ZSHapes: ShapeGroup = {
   ],
 };
 
+export const shapes = {
+  I: IShapes,
+  J: JShapes,
+  L: LShapes,
+  O: OShapes,
+  S: SShapes,
+  T: TShapes,
+  Z: ZSHapes,
+} as const;
+
 // Define Tetrimino shapes
 class ShapeI extends BasicShape {
   name = "ShapeI";
@@ -386,6 +391,11 @@ export class ShapesBag {
     this.shapes = [...shapesConstructors];
     this.board = board;
     this.forceUpdateFn = forceUpdateFn;
+  }
+
+  getFirstShape() {
+    const Shape = this.shapes.shift();
+    return new Shape(this.board, this.forceUpdateFn);
   }
 
   getNextShape() {

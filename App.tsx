@@ -1,157 +1,206 @@
-import type { BoardT } from "./shapes";
+import type { BoardT, Shape } from "./shapes";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import { StyleSheet, View, Button } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
-import { BasicShape, ShapesBag } from "./shapes";
+import { shapes } from "./shapes";
 import MIcons from "@expo/vector-icons/MaterialIcons";
 import CircleButtonWithIcon from "./components/Button";
+import { useShapesBag } from "./hooks/useShapesBag";
+import { useShape } from "./hooks/useShape";
+import { useBoard } from "./hooks/useBoard";
 
-function createBoard(): number[][] {
-  const board = [];
-  for (let i = 0; i < 20; i++) {
-    const row = [];
-    for (let j = 0; j < 10; j++) {
-      row.push(0);
-    }
-    board.push(row);
-  }
-  return board;
+type MoveDownSubAction =
+  | "init"
+  | "moveDown"
+  | "merge"
+  | "handleStrike"
+  | "newShape";
+
+function hasBoardStrike(board: BoardT) {
+  return board.some((row) => row.every((cell) => cell === 1));
+}
+
+let i = 0;
+
+function hasShapeCell(shape: Shape, row: number, col: number) {
+  return shape.some(([r, c]) => r === row && c === col);
+}
+
+function canMoveDown(shape: Shape, board: BoardT) {
+  return shape.every(([r, c]) => r < 19 && board[r + 1][c] === 0);
 }
 
 export default function TetrisApp() {
-  const forceUpdate = useForceUpdate();
-  const [board, setBoard] = useState<BoardT>(() => createBoard());
-  const [shapesBag, setShapesBag] = useState<ShapesBag>(
-    () => new ShapesBag(board, forceUpdate)
-  );
-  const [activeShape, setActiveShape] = useState<BasicShape>(() =>
-    shapesBag.getNextShape()
-  );
+  const { board, reset, merge, removeFilledRows } = useBoard();
+  const pullNextShapeType = useShapesBag();
+  const {
+    type,
+    rotation,
+    postition,
+    rotate,
+    moveLeft,
+    moveRight,
+    moveDown,
+    setNewShape,
+  } = useShape("I");
+  const [nextMoveDownSubActionTrigger, triggerNextMoveDownSubaction] =
+    useForceUpdate();
+  const [lastMoveDownSubAction, setLastMoveDownSubAction] =
+    useState<MoveDownSubAction>("init");
 
-  // Move the active shape down every 1 second
+  const activeShape = shapes[type][rotation].map(([r, c]) => [
+    r + postition[0],
+    c + postition[1],
+  ]);
+
+  // 1. Move the active shape down every 1 second
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (activeShape.hasBottomCollision()) {
-        // merge active shape into board and create a new active shape
-        activeShape.shape.forEach(([r, c]) => {
-          board[r][c] = 1;
-        });
-        setActiveShape(shapesBag.getNextShape());
-        return;
-      }
-      activeShape.moveDown();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [activeShape]);
+    if (
+      (lastMoveDownSubAction === "init" ||
+        lastMoveDownSubAction === "moveDown" ||
+        lastMoveDownSubAction === "newShape") &&
+      canMoveDown(activeShape, board)
+    ) {
+      console.log("plan move down");
+      const timeoutId = setTimeout(() => {
+        console.log("move down");
+        console.log(
+          "nextMoveDownSubActionTrigger",
+          nextMoveDownSubActionTrigger,
+          postition
+        );
+        moveDown();
+        setLastMoveDownSubAction("moveDown");
+        triggerNextMoveDownSubaction();
+      }, 1000);
+      return () => {
+        console.log("clearTimeout");
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
-  const reset = () => {
-    const newBoard = createBoard();
-    const newShapesBag = new ShapesBag(newBoard, forceUpdate);
-    setBoard(newBoard);
-    setShapesBag(newShapesBag);
-    setActiveShape(newShapesBag.getNextShape());
-  };
+  // 2. Merge the active shape with the board when it hits the bottom
+  useEffect(() => {
+    if (
+      lastMoveDownSubAction === "moveDown" &&
+      !canMoveDown(activeShape, board)
+    ) {
+      merge(activeShape);
+      setLastMoveDownSubAction("merge");
+      triggerNextMoveDownSubaction();
+    }
+  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
+
+  // 3. Create a new shape after the active shape has merged with the board
+  useEffect(() => {
+    if (lastMoveDownSubAction === "merge" && hasBoardStrike(board)) {
+      const timeoutId = setTimeout(() => {
+        removeFilledRows();
+        setLastMoveDownSubAction("handleStrike");
+        triggerNextMoveDownSubaction();
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
+
+  // 4. Create a new shape after the active shape has merged with the board
+  useEffect(() => {
+    if (
+      (lastMoveDownSubAction === "merge" && !hasBoardStrike(board)) ||
+      lastMoveDownSubAction === "handleStrike"
+    ) {
+      const timeoutId = setTimeout(() => {
+        setNewShape(pullNextShapeType());
+        setLastMoveDownSubAction("newShape");
+        triggerNextMoveDownSubaction();
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
   return (
-    <View style={styles.container}>
-      <View style={{ borderWidth: 2, borderColor: "gray" }}>
-        {board.map((row, i) => {
-          return (
-            <View key={i} style={{ flexDirection: "row" }}>
-              {row.map((cell, j) => {
-                return (
-                  <View
-                    key={j}
-                    style={
-                      cell === 1 || activeShape.hasCell(i, j)
-                        ? styles.fullCell
-                        : styles.cell
-                    }
-                  />
-                );
-              })}
-            </View>
-          );
-        })}
-      </View>
+    <StrictMode>
+      <View style={styles.container}>
+        <View style={{ borderWidth: 2, borderColor: "gray" }}>
+          {board.map((row, i) => {
+            return (
+              <View key={i} style={{ flexDirection: "row" }}>
+                {row.map((cell, j) => {
+                  return (
+                    <View
+                      key={j}
+                      style={
+                        cell === 1 || hasShapeCell(activeShape, i, j)
+                          ? styles.fullCell
+                          : styles.cell
+                      }
+                    />
+                  );
+                })}
+              </View>
+            );
+          })}
+        </View>
 
-      {/* Controls */}
-      <View
-        style={{
-          flexDirection: "row",
-          flexWrap: "wrap",
-          gap: 30,
-          marginTop: 20,
-          marginBottom: 30,
-        }}
-      >
-        {/* Move Left Button */}
-        <CircleButtonWithIcon onPress={() => activeShape.moveLeft()}>
-          <MIcons name="arrow-back" size={48} color="white" />
-        </CircleButtonWithIcon>
-        {/* Move Down button */}
-        <CircleButtonWithIcon
-          onPress={() => {
-            if (activeShape.hasBottomCollision()) {
-              // merge active shape into board and create a new active shape
-              activeShape.shape.forEach(([r, c]) => {
-                board[r][c] = 1;
-              });
-              // remove full lines
-              for (let i = 0; i < 20; i++) {
-                if (board[i].every((cell) => cell === 1)) {
-                  board.splice(i, 1);
-                  board.unshift(new Array(10).fill(0));
-                }
-              }
-              setActiveShape(shapesBag.getNextShape());
-              forceUpdate();
-              return;
-            }
-            activeShape.moveDown();
+        {/* Controls */}
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 30,
+            marginTop: 20,
+            marginBottom: 30,
           }}
         >
-          <MIcons name="arrow-downward" size={48} color="white" />
-        </CircleButtonWithIcon>
-        {/* Move Right button */}
-        <CircleButtonWithIcon onPress={() => activeShape.moveRight()}>
-          <MIcons name="arrow-forward" size={48} color="white" />
-        </CircleButtonWithIcon>
-        {/* Rotate button */}
-        <CircleButtonWithIcon onPress={() => activeShape.rotate()}>
-          <MIcons name="rotate-left" size={48} color="white" />
-        </CircleButtonWithIcon>
-      </View>
-      {/* Drop button */}
-      <View
-        style={{
-          marginLeft: -85,
-        }}
-      >
-        <CircleButtonWithIcon
-          onPress={() => {
-            if (activeShape.hasBottomCollision()) {
-              // merge active shape into board and create a new active shape
-              activeShape.shape.forEach(([r, c]) => {
-                board[r][c] = 1;
-              });
-              setActiveShape(shapesBag.getNextShape());
-              forceUpdate();
-              return;
-            }
-            activeShape.drop();
+          {/* Move Left Button */}
+          <CircleButtonWithIcon onPress={() => moveLeft(activeShape, board)}>
+            <MIcons name="arrow-back" size={48} color="white" />
+          </CircleButtonWithIcon>
+          {/* Move Down button */}
+          {/* <CircleButtonWithIcon onPress={() => implementMoveDown()}>
+            <MIcons name="arrow-downward" size={48} color="white" />
+          </CircleButtonWithIcon> */}
+          {/* Move Right button */}
+          <CircleButtonWithIcon onPress={() => moveRight(activeShape, board)}>
+            <MIcons name="arrow-forward" size={48} color="white" />
+          </CircleButtonWithIcon>
+          {/* Rotate button */}
+          <CircleButtonWithIcon onPress={() => rotate(board)}>
+            <MIcons name="rotate-left" size={48} color="white" />
+          </CircleButtonWithIcon>
+        </View>
+        {/* Drop button */}
+        <View
+          style={{
+            marginLeft: -85,
           }}
         >
-          <MIcons name="vertical-align-bottom" size={48} color="white" />
-        </CircleButtonWithIcon>
+          <CircleButtonWithIcon
+            onPress={() => {
+              // if (activeShape.canMoveDown()) {
+              //   // merge active shape into board and create a new active shape
+              //   activeShape.shape.forEach(([r, c]) => {
+              //     board[r][c] = 1;
+              //   });
+              //   setActiveShape(shapesBag.getNextShape());
+              //   forceUpdate();
+              //   return;
+              // }
+              // activeShape.drop();
+            }}
+          >
+            <MIcons name="vertical-align-bottom" size={48} color="white" />
+          </CircleButtonWithIcon>
+        </View>
+        {/* Reset Button */}
+        <View style={{ marginTop: 48 }}>
+          <Button title="Reset" onPress={reset} />
+        </View>
+        <StatusBar style="auto" />
       </View>
-      {/* Reset Button */}
-      <View style={{ marginTop: 48 }}>
-        <Button title="Reset" onPress={reset} />
-      </View>
-      <StatusBar style="auto" />
-    </View>
+    </StrictMode>
   );
 }
 
