@@ -8,14 +8,31 @@ import {
   Postition,
 } from "../shapes";
 
+function getActiveShape(
+  type: ShapeType,
+  rotation: Angle,
+  postition: Postition
+) {
+  return shapes[type][rotation].map(([r, c]) => [
+    r + postition[0],
+    c + postition[1],
+  ]);
+}
+
 export function useShape(initialType: ShapeType) {
-  const [type, setType] = useState(initialType);
+  const [type, setType] = useState<ShapeType | null>(initialType);
   const [rotation, setRotation] = useState<Angle>(0);
   const [position, setPosition] = useState<Postition>(
     initialType === "O" ? [0, 4] : [0, 3]
   );
+  const shape: Shape | null = type
+    ? getActiveShape(type, rotation, position)
+    : null;
 
   function rotate(board: BoardT) {
+    if (type === null) {
+      return;
+    }
     const nextAngle = ((rotation + 90) % 360) as Angle;
 
     let nextShape = shapes[type][nextAngle].map(([r, c]) => [
@@ -63,42 +80,47 @@ export function useShape(initialType: ShapeType) {
     setRotation(nextAngle);
   }
 
-  function moveLeft(activeShape: Shape, board: BoardT) {
-    if (activeShape.some(([, c]) => c === 0)) {
+  function moveLeft(board: BoardT) {
+    if (shape === null) {
+      return;
+    }
+    if (shape.some(([, c]) => c === 0)) {
       return;
     }
     // Check if one of the cells has a filled board cell to the left of it
-    if (activeShape.some(([r, c]) => board[r][c - 1] === 1)) {
+    if (shape.some(([r, c]) => board[r][c - 1] === 1)) {
       return;
     }
     setPosition([position[0], position[1] - 1]);
   }
 
-  function moveRight(activeShape: Shape, board: BoardT) {
-    if (activeShape.some(([, c]) => c === 9)) {
+  function moveRight(board: BoardT) {
+    if (shape === null) {
+      return;
+    }
+    if (shape.some(([, c]) => c === 9)) {
       return;
     }
     // Check if one of the cells has a filled board cell to the right of it
-    if (activeShape.some(([r, c]) => board[r][c + 1] === 1)) {
+    if (shape.some(([r, c]) => board[r][c + 1] === 1)) {
       return;
     }
     setPosition([position[0], position[1] + 1]);
   }
 
   function moveDown() {
-    setPosition((prev) => [prev[0] + 1, prev[1]]);
+    type && setPosition((prev) => [prev[0] + 1, prev[1]]);
   }
 
-  function setNewShape(type: ShapeType) {
-    setType(type);
+  function setNewShape(newType: ShapeType | null) {
+    const newPosition: Postition = newType === "O" ? [0, 4] : [0, 3];
+    setType(newType);
     setRotation(0);
-    setPosition(type === "O" ? [0, 4] : [0, 3]);
+    setPosition(newPosition);
   }
 
   return {
-    type,
-    rotation,
-    postition: position,
+    shape,
     rotate,
     moveLeft,
     moveRight,

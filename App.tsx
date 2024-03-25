@@ -3,7 +3,6 @@ import { StatusBar } from "expo-status-bar";
 import { StrictMode, useEffect, useState } from "react";
 import { StyleSheet, View, Button } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
-import { shapes } from "./shapes";
 import MIcons from "@expo/vector-icons/MaterialIcons";
 import CircleButtonWithIcon from "./components/Button";
 import { useShapesBag } from "./hooks/useShapesBag";
@@ -21,38 +20,42 @@ function hasBoardStrike(board: BoardT) {
   return board.some((row) => row.every((cell) => cell === 1));
 }
 
-let i = 0;
-
 function hasShapeCell(shape: Shape, row: number, col: number) {
   return shape.some(([r, c]) => r === row && c === col);
 }
 
-function canMoveDown(shape: Shape, board: BoardT) {
-  return shape.every(([r, c]) => r < 19 && board[r + 1][c] === 0);
+function canMoveDown(shape: Shape | null, board: BoardT) {
+  return !!shape && shape.every(([r, c]) => r < 19 && board[r + 1][c] === 0);
 }
 
 export default function TetrisApp() {
   const { board, reset, merge, removeFilledRows } = useBoard();
-  const pullNextShapeType = useShapesBag();
+  const [initialShapeType, pullNextShapeType] = useShapesBag();
   const {
-    type,
-    rotation,
-    postition,
+    shape: activeShape,
     rotate,
     moveLeft,
     moveRight,
     moveDown,
     setNewShape,
-  } = useShape("I");
+  } = useShape(initialShapeType);
   const [nextMoveDownSubActionTrigger, triggerNextMoveDownSubaction] =
     useForceUpdate();
   const [lastMoveDownSubAction, setLastMoveDownSubAction] =
     useState<MoveDownSubAction>("init");
 
-  const activeShape = shapes[type][rotation].map(([r, c]) => [
-    r + postition[0],
-    c + postition[1],
-  ]);
+  function manualMoveDown() {
+    if (
+      (lastMoveDownSubAction === "init" ||
+        lastMoveDownSubAction === "moveDown" ||
+        lastMoveDownSubAction === "newShape") &&
+      canMoveDown(activeShape, board)
+    ) {
+      moveDown();
+      setLastMoveDownSubAction("moveDown");
+      triggerNextMoveDownSubaction();
+    }
+  }
 
   // 1. Move the active shape down every 1 second
   useEffect(() => {
@@ -62,22 +65,12 @@ export default function TetrisApp() {
         lastMoveDownSubAction === "newShape") &&
       canMoveDown(activeShape, board)
     ) {
-      console.log("plan move down");
       const timeoutId = setTimeout(() => {
-        console.log("move down");
-        console.log(
-          "nextMoveDownSubActionTrigger",
-          nextMoveDownSubActionTrigger,
-          postition
-        );
         moveDown();
         setLastMoveDownSubAction("moveDown");
         triggerNextMoveDownSubaction();
       }, 1000);
-      return () => {
-        console.log("clearTimeout");
-        clearTimeout(timeoutId);
-      };
+      return () => clearTimeout(timeoutId);
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
@@ -85,9 +78,11 @@ export default function TetrisApp() {
   useEffect(() => {
     if (
       lastMoveDownSubAction === "moveDown" &&
+      !!activeShape &&
       !canMoveDown(activeShape, board)
     ) {
       merge(activeShape);
+      setNewShape(null);
       setLastMoveDownSubAction("merge");
       triggerNextMoveDownSubaction();
     }
@@ -132,7 +127,8 @@ export default function TetrisApp() {
                     <View
                       key={j}
                       style={
-                        cell === 1 || hasShapeCell(activeShape, i, j)
+                        cell === 1 ||
+                        (activeShape && hasShapeCell(activeShape, i, j))
                           ? styles.fullCell
                           : styles.cell
                       }
@@ -155,15 +151,15 @@ export default function TetrisApp() {
           }}
         >
           {/* Move Left Button */}
-          <CircleButtonWithIcon onPress={() => moveLeft(activeShape, board)}>
+          <CircleButtonWithIcon onPress={() => moveLeft(board)}>
             <MIcons name="arrow-back" size={48} color="white" />
           </CircleButtonWithIcon>
           {/* Move Down button */}
-          {/* <CircleButtonWithIcon onPress={() => implementMoveDown()}>
+          <CircleButtonWithIcon onPress={() => manualMoveDown()}>
             <MIcons name="arrow-downward" size={48} color="white" />
-          </CircleButtonWithIcon> */}
+          </CircleButtonWithIcon>
           {/* Move Right button */}
-          <CircleButtonWithIcon onPress={() => moveRight(activeShape, board)}>
+          <CircleButtonWithIcon onPress={() => moveRight(board)}>
             <MIcons name="arrow-forward" size={48} color="white" />
           </CircleButtonWithIcon>
           {/* Rotate button */}
