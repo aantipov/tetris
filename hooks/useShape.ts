@@ -121,6 +121,7 @@ export function useShape(initialType: ShapeType) {
 
   return {
     shape,
+    position,
     rotate,
     moveLeft,
     moveRight,

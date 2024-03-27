@@ -28,11 +28,15 @@ function canMoveDown(shape: Shape | null, board: BoardT) {
   return !!shape && shape.every(([r, c]) => r < 19 && board[r + 1][c] === 0);
 }
 
+const moveFastDelay = 50;
+type LongMoveType = "left" | "right" | false;
+
 export default function TetrisApp() {
   const { board, reset, merge, removeFilledRows } = useBoard();
   const [initialShapeType, pullNextShapeType] = useShapesBag();
   const {
     shape: activeShape,
+    position,
     rotate,
     moveLeft,
     moveRight,
@@ -43,6 +47,8 @@ export default function TetrisApp() {
     useForceUpdate();
   const [lastMoveDownSubAction, setLastMoveDownSubAction] =
     useState<MoveDownSubAction>("init");
+  const [longMove, setLongMove] = useState<LongMoveType>(false);
+  const [nextLongSubMoveTrigger, triggerNextLongSubMove] = useForceUpdate();
 
   function manualMoveDown() {
     if (
@@ -56,6 +62,23 @@ export default function TetrisApp() {
       triggerNextMoveDownSubaction();
     }
   }
+
+  useEffect(() => {
+    if (activeShape && longMove && lastMoveDownSubAction === "moveDown") {
+      const intervalId = setInterval(() => {
+        if (longMove === "right") moveRight(board);
+        if (longMove === "left") moveLeft(board);
+        triggerNextLongSubMove();
+      }, moveFastDelay);
+      return () => clearInterval(intervalId);
+    }
+  }, [
+    longMove,
+    lastMoveDownSubAction,
+    nextLongSubMoveTrigger,
+    position,
+    activeShape,
+  ]);
 
   // 1. Move the active shape down every 1 second
   useEffect(() => {
@@ -151,7 +174,10 @@ export default function TetrisApp() {
           }}
         >
           {/* Move Left Button */}
-          <CircleButtonWithIcon onPress={() => moveLeft(board)}>
+          <CircleButtonWithIcon
+            onPressIn={() => setLongMove("left")}
+            onPressOut={() => setLongMove(false)}
+          >
             <MIcons name="arrow-back" size={48} color="white" />
           </CircleButtonWithIcon>
           {/* Move Down button */}
@@ -159,7 +185,10 @@ export default function TetrisApp() {
             <MIcons name="arrow-downward" size={48} color="white" />
           </CircleButtonWithIcon>
           {/* Move Right button */}
-          <CircleButtonWithIcon onPress={() => moveRight(board)}>
+          <CircleButtonWithIcon
+            onPressIn={() => setLongMove("right")}
+            onPressOut={() => setLongMove(false)}
+          >
             <MIcons name="arrow-forward" size={48} color="white" />
           </CircleButtonWithIcon>
           {/* Rotate button */}
