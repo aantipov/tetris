@@ -1,6 +1,6 @@
-import type { BoardT, Shape } from "./shapes";
+import { ShapeType, type BoardT, type Shape, shapes } from "./shapes";
 import { StatusBar } from "expo-status-bar";
-import { StrictMode, useEffect, useState } from "react";
+import React, { StrictMode, useEffect, useState } from "react";
 import { StyleSheet, View, Button, Text } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
 import MIcons from "@expo/vector-icons/MaterialIcons";
@@ -31,6 +31,44 @@ function canMoveDown(shape: Shape | null, board: BoardT) {
 const moveFastDelay = 50;
 type LongMoveType = "left" | "right" | false;
 
+function NextShapeBoard({ nextShapeType }: { nextShapeType: ShapeType }) {
+  const [board, setBoard] = useState<BoardT>(createBoard());
+
+  useEffect(() => {
+    const board = createBoard();
+    const shape = shapes[nextShapeType][0];
+    shape.forEach(([r, c]) => {
+      board[r][c] = 1;
+    });
+    setBoard(board);
+  }, [nextShapeType]);
+
+  function createBoard(): BoardT {
+    return [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+  }
+  return (
+    <View style={{ borderWidth: 2, borderColor: "gray" }}>
+      {board.map((row, i) => {
+        return (
+          <View key={i} style={{ flexDirection: "row" }}>
+            {row.map((cell, j) => {
+              return (
+                <View
+                  key={j}
+                  style={cell === 1 ? styles.fullCell : styles.cell}
+                />
+              );
+            })}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
 export default function TetrisApp() {
   const { board, reset, merge, removeFilledRows } = useBoard();
   const [initialShapeType, pullNextShapeType] = useShapesBag();
@@ -43,6 +81,7 @@ export default function TetrisApp() {
     moveDown,
     setNewShape,
   } = useShape(initialShapeType);
+  const [nextShapeType, setNextShapeType] = useState<ShapeType | null>(null);
   const [nextMoveDownSubActionTrigger, triggerNextMoveDownSubaction] =
     useForceUpdate();
   const [lastMoveDownSubAction, setLastMoveDownSubAction] =
@@ -73,6 +112,10 @@ export default function TetrisApp() {
       triggerNextMoveDownSubaction();
     }
   }
+
+  useEffect(() => {
+    setNextShapeType(pullNextShapeType());
+  }, []);
 
   useEffect(() => {
     if (activeShape && longMove && lastMoveDownSubAction === "moveDown") {
@@ -146,7 +189,8 @@ export default function TetrisApp() {
       lastMoveDownSubAction === "handleStrike"
     ) {
       const timeoutId = setTimeout(() => {
-        setNewShape(pullNextShapeType());
+        setNewShape(nextShapeType);
+        setNextShapeType(pullNextShapeType());
         setLastMoveDownSubAction("newShape");
         triggerNextMoveDownSubaction();
       }, 1000);
@@ -184,6 +228,10 @@ export default function TetrisApp() {
             <Text style={{ fontSize: 20 }}>{score}</Text>
             <Text style={{ fontWeight: "600", paddingTop: 20 }}>Lines</Text>
             <Text style={{ fontSize: 20 }}>{linesCleared}</Text>
+            <Text style={{ fontWeight: "600", paddingTop: 20 }}>Next</Text>
+            {nextShapeType === null ? null : (
+              <NextShapeBoard nextShapeType={nextShapeType} />
+            )}
           </View>
         </View>
 
