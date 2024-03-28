@@ -1,7 +1,7 @@
 import type { BoardT, Shape } from "./shapes";
 import { StatusBar } from "expo-status-bar";
 import { StrictMode, useEffect, useState } from "react";
-import { StyleSheet, View, Button } from "react-native";
+import { StyleSheet, View, Button, Text } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
 import MIcons from "@expo/vector-icons/MaterialIcons";
 import CircleButtonWithIcon from "./components/Button";
@@ -16,8 +16,8 @@ type MoveDownSubAction =
   | "handleStrike"
   | "newShape";
 
-function hasBoardStrike(board: BoardT) {
-  return board.some((row) => row.every((cell) => cell === 1));
+function getFullRowsCount(board: BoardT) {
+  return board.filter((row) => row.every((cell) => cell === 1)).length;
 }
 
 function hasShapeCell(shape: Shape, row: number, col: number) {
@@ -49,6 +49,17 @@ export default function TetrisApp() {
     useState<MoveDownSubAction>("init");
   const [longMove, setLongMove] = useState<LongMoveType>(false);
   const [nextLongSubMoveTrigger, triggerNextLongSubMove] = useForceUpdate();
+  const [score, setScore] = useState(0);
+  const [linesCleared, setLinesCleared] = useState(0);
+
+  function updateScore(rowsCleared: number) {
+    if (rowsCleared === 1) {
+      setScore(score + 100);
+    } else {
+      setScore(score + rowsCleared * 200);
+    }
+    setLinesCleared(linesCleared + rowsCleared);
+  }
 
   function manualMoveDown() {
     if (
@@ -113,9 +124,12 @@ export default function TetrisApp() {
 
   // 3. Create a new shape after the active shape has merged with the board
   useEffect(() => {
-    if (lastMoveDownSubAction === "merge" && hasBoardStrike(board)) {
+    const fullRowsCount = getFullRowsCount(board);
+    const hasStrike = fullRowsCount > 0;
+    if (lastMoveDownSubAction === "merge" && hasStrike) {
       const timeoutId = setTimeout(() => {
         removeFilledRows();
+        updateScore(fullRowsCount);
         setLastMoveDownSubAction("handleStrike");
         triggerNextMoveDownSubaction();
       }, 1000);
@@ -125,8 +139,10 @@ export default function TetrisApp() {
 
   // 4. Create a new shape after the active shape has merged with the board
   useEffect(() => {
+    const fullRowsCount = getFullRowsCount(board);
+    const hasStrike = fullRowsCount > 0;
     if (
-      (lastMoveDownSubAction === "merge" && !hasBoardStrike(board)) ||
+      (lastMoveDownSubAction === "merge" && !hasStrike) ||
       lastMoveDownSubAction === "handleStrike"
     ) {
       const timeoutId = setTimeout(() => {
@@ -141,26 +157,34 @@ export default function TetrisApp() {
   return (
     <StrictMode>
       <View style={styles.container}>
-        <View style={{ borderWidth: 2, borderColor: "gray" }}>
-          {board.map((row, i) => {
-            return (
-              <View key={i} style={{ flexDirection: "row" }}>
-                {row.map((cell, j) => {
-                  return (
-                    <View
-                      key={j}
-                      style={
-                        cell === 1 ||
-                        (activeShape && hasShapeCell(activeShape, i, j))
-                          ? styles.fullCell
-                          : styles.cell
-                      }
-                    />
-                  );
-                })}
-              </View>
-            );
-          })}
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ borderWidth: 2, borderColor: "gray" }}>
+            {board.map((row, i) => {
+              return (
+                <View key={i} style={{ flexDirection: "row" }}>
+                  {row.map((cell, j) => {
+                    return (
+                      <View
+                        key={j}
+                        style={
+                          cell === 1 ||
+                          (activeShape && hasShapeCell(activeShape, i, j))
+                            ? styles.fullCell
+                            : styles.cell
+                        }
+                      />
+                    );
+                  })}
+                </View>
+              );
+            })}
+          </View>
+          <View style={{ paddingLeft: 20 }}>
+            <Text style={{ fontWeight: "600" }}>Score</Text>
+            <Text style={{ fontSize: 20 }}>{score}</Text>
+            <Text style={{ fontWeight: "600", paddingTop: 20 }}>Lines</Text>
+            <Text style={{ fontSize: 20 }}>{linesCleared}</Text>
+          </View>
         </View>
 
         {/* Controls */}
