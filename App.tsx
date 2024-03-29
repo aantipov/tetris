@@ -1,13 +1,15 @@
 import { ShapeType, type BoardT, type Shape, shapes } from "./shapes";
 import { StatusBar } from "expo-status-bar";
 import React, { StrictMode, useEffect, useState } from "react";
-import { StyleSheet, View, Button, Text } from "react-native";
+import { View, Button, Text } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
 import MIcons from "@expo/vector-icons/MaterialIcons";
 import CircleButtonWithIcon from "./components/Button";
 import { useShapesBag } from "./hooks/useShapesBag";
 import { useShape } from "./hooks/useShape";
 import { useBoard } from "./hooks/useBoard";
+import NextShapeBoard from "./components/NextShapeBoard";
+import { styles } from "./styles";
 
 type MoveDownSubAction =
   | "init"
@@ -28,46 +30,8 @@ function canMoveDown(shape: Shape | null, board: BoardT) {
   return !!shape && shape.every(([r, c]) => r < 19 && board[r + 1][c] === 0);
 }
 
-const moveFastDelay = 50;
+const moveFastDelay = 30;
 type LongMoveType = "left" | "right" | false;
-
-function NextShapeBoard({ nextShapeType }: { nextShapeType: ShapeType }) {
-  const [board, setBoard] = useState<BoardT>(createBoard());
-
-  useEffect(() => {
-    const board = createBoard();
-    const shape = shapes[nextShapeType][0];
-    shape.forEach(([r, c]) => {
-      board[r][c] = 1;
-    });
-    setBoard(board);
-  }, [nextShapeType]);
-
-  function createBoard(): BoardT {
-    return [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-    ];
-  }
-  return (
-    <View style={{ borderWidth: 2, borderColor: "gray" }}>
-      {board.map((row, i) => {
-        return (
-          <View key={i} style={{ flexDirection: "row" }}>
-            {row.map((cell, j) => {
-              return (
-                <View
-                  key={j}
-                  style={cell === 1 ? styles.fullCell : styles.cell}
-                />
-              );
-            })}
-          </View>
-        );
-      })}
-    </View>
-  );
-}
 
 export default function TetrisApp() {
   const { board, reset, merge, removeFilledRows } = useBoard();
@@ -300,32 +264,3 @@ export default function TetrisApp() {
     </StrictMode>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    // flex: 1,
-    width: "100%",
-    height: "100%",
-    paddingTop: 80,
-    backgroundColor: "#E0E0E0",
-    alignItems: "center",
-  },
-  cell: {
-    rowGap: 0,
-    columnGap: 0,
-    width: 25,
-    height: 25,
-    backgroundColor: "white",
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
-  },
-  fullCell: {
-    rowGap: 0,
-    columnGap: 0,
-    width: 25,
-    height: 25,
-    backgroundColor: "black",
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
-  },
-});
