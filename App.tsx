@@ -57,6 +57,7 @@ export default function TetrisApp() {
   const [score, setScore] = useState(0);
   const [linesCleared, setLinesCleared] = useState(0);
   const [isMergeActivated, setIsMergeActivated] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(false);
 
   function updateScore(rowsCleared: number) {
     if (rowsCleared === 1) {
@@ -92,8 +93,7 @@ export default function TetrisApp() {
   useEffect(() => {
     if (
       (lastMoveDownSubAction === "init" ||
-        lastMoveDownSubAction === "moveDown" ||
-        lastMoveDownSubAction === "newShape") &&
+        lastMoveDownSubAction === "moveDown") &&
       canMoveDown(activeShape, board)
     ) {
       const delay = longMove === "down" ? moveFastDelay : defaultDelay;
@@ -163,6 +163,18 @@ export default function TetrisApp() {
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
+  // 5. Check if the game is over
+  useEffect(() => {
+    if (lastMoveDownSubAction === "newShape") {
+      if (canMoveDown(activeShape, board)) {
+        setLastMoveDownSubAction("moveDown");
+        triggerNextMoveDownSubaction();
+      } else {
+        setIsGameOver(true);
+      }
+    }
+  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
+
   return (
     <StrictMode>
       <View style={styles.container}>
@@ -199,6 +211,14 @@ export default function TetrisApp() {
             )}
           </View>
         </View>
+
+        {isGameOver && (
+          <View>
+            <Text style={{ fontSize: 24, fontWeight: "600", marginTop: 40 }}>
+              Game Over
+            </Text>
+          </View>
+        )}
 
         {/* Controls */}
         <View
