@@ -112,6 +112,19 @@ export function useShape(initialType: ShapeType) {
     type && setPosition((prev) => [prev[0] + 1, prev[1]]);
   }
 
+  function drop(board: BoardT) {
+    if (shape === null || type === null) {
+      return;
+    }
+    let nextPosition = position;
+    let activeShape = getActiveShape(type, rotation, nextPosition);
+    while (activeShape.every(([r, c]) => r < 19 && board[r + 1][c] === 0)) {
+      nextPosition = [nextPosition[0] + 1, nextPosition[1]];
+      activeShape = getActiveShape(type, rotation, nextPosition);
+    }
+    setPosition(nextPosition);
+  }
+
   function setNewShape(newType: ShapeType | null) {
     const newPosition: Postition = newType === "O" ? [0, 4] : [0, 3];
     setType(newType);
@@ -126,6 +139,7 @@ export function useShape(initialType: ShapeType) {
     moveLeft,
     moveRight,
     moveDown,
+    drop,
     setNewShape,
   } as const;
 }

@@ -30,8 +30,8 @@ function canMoveDown(shape: Shape | null, board: BoardT) {
   return !!shape && shape.every(([r, c]) => r < 19 && board[r + 1][c] === 0);
 }
 
-const moveFastDelay = 30;
-const delay = 1000;
+const moveFastDelay = 10;
+const defaultDelay = 1000;
 type LongMoveType = "left" | "right" | "down" | false;
 
 export default function TetrisApp() {
@@ -44,6 +44,7 @@ export default function TetrisApp() {
     moveLeft,
     moveRight,
     moveDown,
+    drop,
     setNewShape,
   } = useShape(initialShapeType);
   const [nextShapeType, setNextShapeType] = useState<ShapeType | null>(null);
@@ -63,19 +64,6 @@ export default function TetrisApp() {
       setScore(score + rowsCleared * 200);
     }
     setLinesCleared(linesCleared + rowsCleared);
-  }
-
-  function manualMoveDown() {
-    if (
-      (lastMoveDownSubAction === "init" ||
-        lastMoveDownSubAction === "moveDown" ||
-        lastMoveDownSubAction === "newShape") &&
-      canMoveDown(activeShape, board)
-    ) {
-      moveDown();
-      setLastMoveDownSubAction("moveDown");
-      triggerNextMoveDownSubaction();
-    }
   }
 
   useEffect(() => {
@@ -107,12 +95,13 @@ export default function TetrisApp() {
         lastMoveDownSubAction === "newShape") &&
       canMoveDown(activeShape, board)
     ) {
-      const moveDownDelay = longMove === "down" ? moveFastDelay : delay;
+      const delay = longMove === "down" ? moveFastDelay : defaultDelay;
+
       const timeoutId = setTimeout(() => {
         moveDown();
         setLastMoveDownSubAction("moveDown");
         triggerNextMoveDownSubaction();
-      }, moveDownDelay);
+      }, delay);
       return () => clearTimeout(timeoutId);
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
@@ -253,16 +242,9 @@ export default function TetrisApp() {
           {/* Drop button */}
           <CircleButtonWithIcon
             onPress={() => {
-              // if (activeShape.canMoveDown()) {
-              //   // merge active shape into board and create a new active shape
-              //   activeShape.shape.forEach(([r, c]) => {
-              //     board[r][c] = 1;
-              //   });
-              //   setActiveShape(shapesBag.getNextShape());
-              //   forceUpdate();
-              //   return;
-              // }
-              // activeShape.drop();
+              drop(board);
+              setLastMoveDownSubAction("moveDown");
+              triggerNextMoveDownSubaction();
             }}
           >
             <MIcons name="vertical-align-bottom" size={48} color="white" />
