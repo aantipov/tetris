@@ -1,6 +1,6 @@
 import { ShapeType, type BoardT, type Shape, shapes } from "./shapes";
 import { StatusBar } from "expo-status-bar";
-import React, { StrictMode, useEffect, useState } from "react";
+import React, { StrictMode, useEffect, useMemo, useState } from "react";
 import { View, Button, Text } from "react-native";
 import useForceUpdate from "./hooks/useForceUpdate";
 import MIcons from "@expo/vector-icons/MaterialIcons";
@@ -57,7 +57,11 @@ export default function TetrisApp() {
   const [score, setScore] = useState(0);
   const [linesCleared, setLinesCleared] = useState(0);
   const [isMergeActivated, setIsMergeActivated] = useState(false);
-  const [isGameOver, setIsGameOver] = useState(false);
+  const isGameOver = useMemo(
+    () =>
+      !!activeShape && position[0] === 0 && !canMoveDown(activeShape, board),
+    [activeShape, position]
+  );
 
   function updateScore(rowsCleared: number) {
     if (rowsCleared === 1) {
@@ -93,8 +97,10 @@ export default function TetrisApp() {
   useEffect(() => {
     if (
       (lastMoveDownSubAction === "init" ||
-        lastMoveDownSubAction === "moveDown") &&
-      canMoveDown(activeShape, board)
+        lastMoveDownSubAction === "moveDown" ||
+        lastMoveDownSubAction === "newShape") &&
+      canMoveDown(activeShape, board) &&
+      !isGameOver
     ) {
       const delay = longMove === "down" ? moveFastDelay : defaultDelay;
 
@@ -160,18 +166,6 @@ export default function TetrisApp() {
         triggerNextMoveDownSubaction();
       }, 1000);
       return () => clearTimeout(timeoutId);
-    }
-  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
-
-  // 5. Check if the game is over
-  useEffect(() => {
-    if (lastMoveDownSubAction === "newShape") {
-      if (canMoveDown(activeShape, board)) {
-        setLastMoveDownSubAction("moveDown");
-        triggerNextMoveDownSubaction();
-      } else {
-        setIsGameOver(true);
-      }
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
