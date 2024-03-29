@@ -67,14 +67,6 @@ export default function TetrisApp() {
     setLinesCleared(linesCleared + rowsCleared);
   }
 
-  function processMerge() {
-    merge(activeShape as Shape);
-    setNewShape(null);
-    setLastMoveDownSubAction("merge");
-    triggerNextMoveDownSubaction();
-    setIsMergeActivated(false);
-  }
-
   useEffect(() => {
     setNextShapeType(pullNextShapeType());
   }, []);
@@ -115,25 +107,28 @@ export default function TetrisApp() {
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
-  useEffect(() => {
-    if (isMergeActivated) {
-      processMerge();
-    }
-  }, [isMergeActivated]);
-
-  // 2. Merge the active shape with the board when it hits the bottom
+  // 2. Trigger delayed (to allow horizontal move) merge of active shape with the board when it hits the bottom
   useEffect(() => {
     if (
       lastMoveDownSubAction === "moveDown" &&
       !!activeShape &&
       !canMoveDown(activeShape, board)
     ) {
-      const timeoutId = setTimeout(() => {
-        setIsMergeActivated(true);
-      }, 1000);
+      const timeoutId = setTimeout(() => setIsMergeActivated(true), 1000);
       return () => clearTimeout(timeoutId);
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
+
+  // 2.1. Merge the active shape with the board when it hits the bottom
+  useEffect(() => {
+    if (isMergeActivated) {
+      merge(activeShape as Shape);
+      setNewShape(null);
+      setLastMoveDownSubAction("merge");
+      triggerNextMoveDownSubaction();
+      setIsMergeActivated(false);
+    }
+  }, [isMergeActivated]);
 
   // 3. Create a new shape after the active shape has merged with the board
   useEffect(() => {
