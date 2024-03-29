@@ -115,11 +115,7 @@ export default function TetrisApp() {
       }, moveDownDelay);
       return () => clearTimeout(timeoutId);
     }
-  }, [
-    nextMoveDownSubActionTrigger,
-    nextLongSubMoveTrigger,
-    lastMoveDownSubAction,
-  ]);
+  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
   // 2. Merge the active shape with the board when it hits the bottom
   useEffect(() => {
@@ -211,44 +207,50 @@ export default function TetrisApp() {
             flexDirection: "row",
             flexWrap: "wrap",
             gap: 30,
-            marginTop: 40,
+            marginTop: 30,
             marginBottom: 30,
           }}
         >
           {/* Move Left Button */}
-          <CircleButtonWithIcon
-            onPressIn={() => setLongMove("left")}
-            onPressOut={() => setLongMove(false)}
-          >
-            <MIcons name="arrow-back" size={48} color="white" />
-          </CircleButtonWithIcon>
-          {/* Move Down button */}
-          <View style={{ marginTop: 60 }}>
+          <View style={{ paddingTop: 40 }}>
             <CircleButtonWithIcon
-              onPressIn={() => setLongMove("down")}
+              onPressIn={() => setLongMove("left")}
               onPressOut={() => setLongMove(false)}
             >
-              <MIcons name="arrow-downward" size={48} color="white" />
+              <MIcons name="arrow-back" size={48} color="white" />
             </CircleButtonWithIcon>
           </View>
+
+          {/* Rotate and MoveDown button */}
+          <View>
+            <CircleButtonWithIcon onPress={() => rotate(board)}>
+              <MIcons name="rotate-left" size={48} color="white" />
+            </CircleButtonWithIcon>
+
+            <View style={{ marginTop: 40 }}>
+              <CircleButtonWithIcon
+                onPressIn={() => {
+                  setLongMove("down");
+                  triggerNextMoveDownSubaction();
+                }}
+                onPressOut={() => setLongMove(false)}
+              >
+                <MIcons name="arrow-downward" size={48} color="white" />
+              </CircleButtonWithIcon>
+            </View>
+          </View>
+
           {/* Move Right button */}
-          <CircleButtonWithIcon
-            onPressIn={() => setLongMove("right")}
-            onPressOut={() => setLongMove(false)}
-          >
-            <MIcons name="arrow-forward" size={48} color="white" />
-          </CircleButtonWithIcon>
-          {/* Rotate button */}
-          <CircleButtonWithIcon onPress={() => rotate(board)}>
-            <MIcons name="rotate-left" size={48} color="white" />
-          </CircleButtonWithIcon>
-        </View>
-        {/* Drop button */}
-        {/* <View
-          style={{
-            marginLeft: -85,
-          }}
-        >
+          <View style={{ paddingTop: 40 }}>
+            <CircleButtonWithIcon
+              onPressIn={() => setLongMove("right")}
+              onPressOut={() => setLongMove(false)}
+            >
+              <MIcons name="arrow-forward" size={48} color="white" />
+            </CircleButtonWithIcon>
+          </View>
+
+          {/* Drop button */}
           <CircleButtonWithIcon
             onPress={() => {
               // if (activeShape.canMoveDown()) {
@@ -265,7 +267,7 @@ export default function TetrisApp() {
           >
             <MIcons name="vertical-align-bottom" size={48} color="white" />
           </CircleButtonWithIcon>
-        </View> */}
+        </View>
         {/* Reset Button */}
         <View style={{ marginTop: 48 }}>
           <Button title="Reset" onPress={reset} />
