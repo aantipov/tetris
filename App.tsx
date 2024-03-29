@@ -56,6 +56,7 @@ export default function TetrisApp() {
   const [nextLongSubMoveTrigger, triggerNextLongSubMove] = useForceUpdate();
   const [score, setScore] = useState(0);
   const [linesCleared, setLinesCleared] = useState(0);
+  const [isMergeActivated, setIsMergeActivated] = useState(false);
 
   function updateScore(rowsCleared: number) {
     if (rowsCleared === 1) {
@@ -64,6 +65,14 @@ export default function TetrisApp() {
       setScore(score + rowsCleared * 200);
     }
     setLinesCleared(linesCleared + rowsCleared);
+  }
+
+  function processMerge() {
+    merge(activeShape as Shape);
+    setNewShape(null);
+    setLastMoveDownSubAction("merge");
+    triggerNextMoveDownSubaction();
+    setIsMergeActivated(false);
   }
 
   useEffect(() => {
@@ -106,6 +115,12 @@ export default function TetrisApp() {
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
+  useEffect(() => {
+    if (isMergeActivated) {
+      processMerge();
+    }
+  }, [isMergeActivated]);
+
   // 2. Merge the active shape with the board when it hits the bottom
   useEffect(() => {
     if (
@@ -113,10 +128,10 @@ export default function TetrisApp() {
       !!activeShape &&
       !canMoveDown(activeShape, board)
     ) {
-      merge(activeShape);
-      setNewShape(null);
-      setLastMoveDownSubAction("merge");
-      triggerNextMoveDownSubaction();
+      const timeoutId = setTimeout(() => {
+        setIsMergeActivated(true);
+      }, 1000);
+      return () => clearTimeout(timeoutId);
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
 
@@ -130,7 +145,7 @@ export default function TetrisApp() {
         updateScore(fullRowsCount);
         setLastMoveDownSubAction("handleStrike");
         triggerNextMoveDownSubaction();
-      }, 1000);
+      }, 10);
       return () => clearTimeout(timeoutId);
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
