@@ -34,8 +34,42 @@ const moveFastDelay = 10;
 const defaultDelay = 1000;
 type LongMoveType = "left" | "right" | "down" | false;
 
+function Overlay({ children }: { children: React.ReactNode }) {
+  return (
+    <View
+      style={{
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <View
+        style={{
+          position: "absolute",
+          opacity: 1,
+          zIndex: 2,
+        }}
+      >
+        {children}
+      </View>
+      <View
+        style={{
+          position: "absolute",
+          backgroundColor: "black",
+          width: "100%",
+          height: "100%",
+          opacity: 0.3,
+          zIndex: 1,
+        }}
+      ></View>
+    </View>
+  );
+}
+
 export default function TetrisApp() {
-  const { board, reset, merge, removeFilledRows } = useBoard();
+  const { board, reset: resetBoard, merge, removeFilledRows } = useBoard();
   const [initialShapeType, pullNextShapeType] = useShapesBag();
   const {
     shape: activeShape,
@@ -57,6 +91,7 @@ export default function TetrisApp() {
   const [score, setScore] = useState(0);
   const [linesCleared, setLinesCleared] = useState(0);
   const [isMergeActivated, setIsMergeActivated] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const isGameOver = useMemo(
     () =>
       !!activeShape && position[0] === 0 && !canMoveDown(activeShape, board),
@@ -72,12 +107,27 @@ export default function TetrisApp() {
     setLinesCleared(linesCleared + rowsCleared);
   }
 
+  function reset() {
+    resetBoard();
+    setNewShape(null);
+    // setNewShape(initialShapeType);
+    // setNextShapeType(pullNextShapeType());
+    setScore(0);
+    setLinesCleared(0);
+    setLastMoveDownSubAction("init");
+  }
+
   useEffect(() => {
     setNextShapeType(pullNextShapeType());
   }, []);
 
   useEffect(() => {
-    if (activeShape && longMove && lastMoveDownSubAction === "moveDown") {
+    if (
+      activeShape &&
+      !isPaused &&
+      longMove &&
+      lastMoveDownSubAction === "moveDown"
+    ) {
       const intervalId = setInterval(() => {
         if (longMove === "right") moveRight(board);
         if (longMove === "left") moveLeft(board);
@@ -96,6 +146,7 @@ export default function TetrisApp() {
   // 1. Move the active shape down every 1 second
   useEffect(() => {
     if (
+      !isPaused &&
       (lastMoveDownSubAction === "init" ||
         lastMoveDownSubAction === "moveDown" ||
         lastMoveDownSubAction === "newShape") &&
@@ -111,7 +162,7 @@ export default function TetrisApp() {
       }, delay);
       return () => clearTimeout(timeoutId);
     }
-  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
+  }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction, isPaused]);
 
   // 2. Trigger delayed (to allow horizontal move) merge of active shape with the board when it hits the bottom
   useEffect(() => {
@@ -164,7 +215,7 @@ export default function TetrisApp() {
         setNextShapeType(pullNextShapeType());
         setLastMoveDownSubAction("newShape");
         triggerNextMoveDownSubaction();
-      }, 1000);
+      }, 100);
       return () => clearTimeout(timeoutId);
     }
   }, [nextMoveDownSubActionTrigger, lastMoveDownSubAction]);
@@ -174,6 +225,12 @@ export default function TetrisApp() {
       <View style={styles.container}>
         <View style={{ flexDirection: "row" }}>
           <View style={{ borderWidth: 2, borderColor: "gray" }}>
+            {isPaused && (
+              <Overlay>
+                <Button title="Resume" onPress={() => setIsPaused(false)} />
+              </Overlay>
+            )}
+
             {board.map((row, i) => {
               return (
                 <View key={i} style={{ flexDirection: "row" }}>
@@ -275,8 +332,16 @@ export default function TetrisApp() {
           </CircleButtonWithIcon>
         </View>
         {/* Reset Button */}
-        <View style={{ marginTop: 48 }}>
-          <Button title="Reset" onPress={reset} />
+        <View style={{ marginTop: 10, flexDirection: "row" }}>
+          <View>
+            <Button
+              title={isPaused ? "resume" : "pause"}
+              onPress={() => setIsPaused(!isPaused)}
+            />
+          </View>
+          <View style={{ marginLeft: 20 }}>
+            <Button title="reset" onPress={reset} />
+          </View>
         </View>
         <StatusBar style="auto" />
       </View>
