@@ -1,5 +1,5 @@
 import { assign, setup, ActorRefFrom, enqueueActions } from "xstate";
-import { BoardGridT, Shape, shapesTypes, ShapeTypeT } from "../shapes";
+import { shapesTypes, type BoardGridT, type ShapeTypeT } from "../shapes";
 import { getActiveShape, shapeMachine } from "./shape";
 
 const initialShapeType = shapesTypes[0];

@@ -1,9 +1,12 @@
-import { assign, enqueueActions, sendParent, setup } from "xstate";
-import { Angle, BoardGridT, PositionT, shapes, type Shape } from "../shapes";
-
-const shapesTypes = ["I", "J", "L", "O", "S", "T", "Z"] as const;
-type ShapeTypeT = (typeof shapesTypes)[number];
-const initialShapeType = shapesTypes[0];
+import { assign, enqueueActions, setup } from "xstate";
+import {
+  Angle,
+  BoardGridT,
+  PositionT,
+  shapes,
+  type ShapeTypeT,
+  type Shape,
+} from "../shapes";
 
 export function getActiveShape(
   type: ShapeTypeT,
@@ -59,7 +62,6 @@ export const shapeMachine = setup({
   states: {
     Initial: {
       on: {
-        // RUN: "Running",
         LEFT: {
           actions: [
             assign(({ context: { type, position, rotation }, event }) => {
@@ -101,10 +103,6 @@ export const shapeMachine = setup({
             enqueue.assign(({ context: { position } }) => ({
               position: [position[0] + 1, position[1]],
             }));
-
-            // enqueue(({}) => {
-            //   sendParent({ type: "SHAPE.DOWN.FINISHED" });
-            // });
           }),
         },
         ROTATE: {
