@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { BoardT, ShapeType, shapes } from "../shapes";
+import { BoardGridT, ShapeTypeT, shapes } from "../shapes";
 import { View } from "react-native";
 import { styles } from "../styles";
 
 export default function NextShapeBoard({
   nextShapeType,
 }: {
-  nextShapeType: ShapeType;
+  nextShapeType: ShapeTypeT;
 }) {
-  const [board, setBoard] = useState<BoardT>(createBoard());
+  const [board, setBoard] = useState<BoardGridT>(createBoard());
 
   useEffect(() => {
     const board = createBoard();
@@ -19,7 +19,7 @@ export default function NextShapeBoard({
     setBoard(board);
   }, [nextShapeType]);
 
-  function createBoard(): BoardT {
+  function createBoard(): BoardGridT {
     return [
       [0, 0, 0, 0],
       [0, 0, 0, 0],

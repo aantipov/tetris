@@ -1,23 +1,37 @@
 import { useState } from "react";
-import type { ShapeType } from "../shapes";
+import type { ShapeTypeT } from "../shapes";
 
-const shapesTypes: ShapeType[] = ["I", "J", "L", "O", "S", "T", "Z"] as const;
+const shapesTypes: ShapeTypeT[] = ["I", "J", "L", "O", "S", "T", "Z"] as const;
 const initialShapeType = "I" as const;
-const initialShapesTypes: ShapeType[] = ["J", "L", "O", "S", "T", "Z"] as const;
+const initialShapesTypes: ShapeTypeT[] = [
+  "J",
+  "L",
+  "O",
+  "S",
+  "T",
+  "Z",
+] as const;
 
 export function useShapesBag() {
   const [shapesBag, setShapesBag] = useState(() => [...initialShapesTypes]);
+  const [shapeType, setShapeType] = useState<ShapeTypeT>(initialShapeType);
 
   function pullShapeType() {
     if (shapesBag.length === 1) {
+      setShapeType(shapesBag[0]);
       setShapesBag([...shapesTypes]);
-      return shapesBag[0];
+    } else {
+      const randomIndex = Math.floor(Math.random() * shapesBag.length);
+      const shapeType = shapesBag[randomIndex];
+      setShapeType(shapeType);
+      setShapesBag(shapesBag.filter((type) => type !== shapeType));
     }
-    const randomIndex = Math.floor(Math.random() * shapesBag.length);
-    const shapeType = shapesBag[randomIndex];
-    setShapesBag(shapesBag.filter((type) => type !== shapeType));
-    return shapeType;
   }
 
-  return [initialShapeType, pullShapeType] as const;
+  function reset() {
+    setShapeType(initialShapeType);
+    setShapesBag([...initialShapesTypes]);
+  }
+
+  return [shapeType, pullShapeType, reset] as const;
 }

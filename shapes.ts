@@ -1,9 +1,10 @@
-export type BoardT = number[][]; // 20x10 grij
+export type BoardGridT = number[][]; // 20x10 grij
 export type Shape = number[][]; // Each shape represents on of 19 Fixed tetromino shapes https://en.wikipedia.org/wiki/Tetromino
 export type ShapeGroup = Record<Angle, Shape>; // A group of shapes - a fixed tetromino shape plus its rotations
-export type ShapeType = "I" | "J" | "L" | "O" | "S" | "T" | "Z";
+export const shapesTypes = ["I", "J", "L", "O", "S", "T", "Z"] as const;
+export type ShapeTypeT = (typeof shapesTypes)[number];
 export type Angle = 0 | 90 | 180 | 270;
-export type Postition = [number, number];
+export type PositionT = [number, number];
 
 const IShapes: ShapeGroup = {
   0: [

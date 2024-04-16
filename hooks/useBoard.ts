@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { BoardT, Shape } from "../shapes";
+import type { BoardGridT, Shape } from "../shapes";
 
-function createBoard(): BoardT {
+function createBoard(): BoardGridT {
   const board = [];
   for (let r = 0; r < 20; r++) {
     const row = [];
