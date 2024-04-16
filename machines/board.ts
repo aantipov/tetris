@@ -19,8 +19,10 @@ function createBoard(): BoardGridT {
   return board;
 }
 
-function canMoveDown(shape: Shape, board: BoardGridT) {
-  return shape.every(([r, c]) => r < 19 && board[r + 1][c] === 0);
+function canMoveDown(context: BoardContextT) {
+  const { type, position, rotation } = context.shapeRef.getSnapshot().context;
+  const shape = getActiveShape(type, rotation, position);
+  return shape.every(([r, c]) => r < 19 && context.grid[r + 1][c] === 0);
 }
 
 function getFullRowsCount(grid: BoardGridT) {
@@ -166,10 +168,7 @@ export const boardMachine = setup({
                 },
               },
               entry: enqueueActions(({ context, enqueue, event }) => {
-                const { type, position, rotation } =
-                  context.shapeRef.getSnapshot().context;
-                const shape = getActiveShape(type, rotation, position);
-                if (canMoveDown(shape, context.grid)) {
+                if (canMoveDown(context)) {
                   enqueue(({ context }) => {
                     context.shapeRef.send({
                       type: "DOWN",
@@ -183,12 +182,7 @@ export const boardMachine = setup({
                 }
               }),
               always: {
-                guard: ({ context }) => {
-                  const { type, position, rotation } =
-                    context.shapeRef.getSnapshot().context;
-                  const shape = getActiveShape(type, rotation, position);
-                  return !canMoveDown(shape, context.grid);
-                },
+                guard: ({ context }) => !canMoveDown(context),
                 target: "#board.Running.BottomCollisionHandling",
               },
             },
@@ -200,10 +194,7 @@ export const boardMachine = setup({
                 },
               },
               entry: enqueueActions(({ context, enqueue, event }) => {
-                const { type, position, rotation } =
-                  context.shapeRef.getSnapshot().context;
-                const shape = getActiveShape(type, rotation, position);
-                if (canMoveDown(shape, context.grid)) {
+                if (canMoveDown(context)) {
                   enqueue(({ context }) => {
                     context.shapeRef.send({
                       type: "DOWN",
@@ -214,12 +205,7 @@ export const boardMachine = setup({
                 }
               }),
               always: {
-                guard: ({ context }) => {
-                  const { type, position, rotation } =
-                    context.shapeRef.getSnapshot().context;
-                  const shape = getActiveShape(type, rotation, position);
-                  return !canMoveDown(shape, context.grid);
-                },
+                guard: ({ context }) => !canMoveDown(context),
                 target: "#board.Running.BottomCollisionHandling",
               },
             },
@@ -233,10 +219,7 @@ export const boardMachine = setup({
             },
           },
           entry: enqueueActions(({ context, enqueue, event }) => {
-            const { type, position, rotation } =
-              context.shapeRef.getSnapshot().context;
-            const shape = getActiveShape(type, rotation, position);
-            if (canMoveDown(shape, context.grid)) {
+            if (canMoveDown(context)) {
               enqueue(({ context }) => {
                 context.shapeRef.send({
                   type: "DOWN",
@@ -247,12 +230,7 @@ export const boardMachine = setup({
             }
           }),
           always: {
-            guard: ({ context }) => {
-              const { type, position, rotation } =
-                context.shapeRef.getSnapshot().context;
-              const shape = getActiveShape(type, rotation, position);
-              return !canMoveDown(shape, context.grid);
-            },
+            guard: ({ context }) => !canMoveDown(context),
             target: "#board.Running.BottomCollisionHandling",
           },
         },
