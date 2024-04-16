@@ -1,15 +1,6 @@
-import {
-  assign,
-  setup,
-  ActorRefFrom,
-  AnyActor,
-  log,
-  raise,
-  enqueueActions,
-} from "xstate";
+import { assign, setup, ActorRefFrom, enqueueActions } from "xstate";
 import { BoardGridT, Shape, shapesTypes, ShapeTypeT } from "../shapes";
 import { getActiveShape, shapeMachine } from "./shape";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 const initialShapeType = shapesTypes[0];
 const initialShapesTypes = shapesTypes.slice(1);
@@ -42,6 +33,7 @@ interface BoardContextT {
   nextShape: ShapeTypeT;
   shapesBag: ShapeTypeT[];
   score: number;
+  linesCleared: number;
 }
 
 function pullNextShape({
@@ -88,7 +80,7 @@ export const boardMachine = setup({
     shapeM: shapeMachine,
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAFgBMAGhABPRAEYAzMpIAOAGwBOAOzrdqxeJ3qAvmdlosEEgEkBvLugA2+YiSoEAgmXrNhDm4+QWExBGUAVkUNBhNtcUjxOOVDXVkFBHUYyIY8hkjI3UldUtSLKwxscgBXAUcBKHdSAAVvAFUaRhYkECCnUN7w421JEk1JaMj1OO1IqMiMpQZjEgZi9VU53XFxZXEKkGtqsjqGpo6CAHkSADE7IjsqAAluwM4BoSGlcVHxycU01m80KSwQikkmkia2UigYBnUiKkyk0h2OtlO9S4jXsEBcYGanme3haFBIABkKLcCCQWpQqDQACJvXr9EJfUDhZSSNTGBgTTSAzS6SITMHGUXjUUqfbZSTaTQHSxHKoYs7YqC4-GEl4kslkOwAcWeNLp1CZLPYH3ZYUQ3N5yQFQpFYvkSiiMSFkkh-OMulRyvRtSxOLseIJhFIutJJEZVwA6q16RaAqzrfwOaJluk3QhIgqSI7JIlNFCeUrKjZg+ctRGPNH9VcfAQKJa+unBpyJKVC5oDEVVJtxKVNOL9mNAbD9soGB7pmjVdWNSQ8DUeDxBOSwAAzHgtTBwWCQHXEmOU6nkCiU7wpnpW4IZ20RHkkPlO0UumS5t+vwraPTJFoxYLlWmI1qu66CGQXBQAAFnuB6wEeuCRkSerkEaJqXtet7vA+nZZs+Dr8pCzqil+mQqHkUoTLsDCSNkUKRCBJzqjiEEbgIjKoAA7gI+6HseqENrGCakJQOEUMyqb3p8T6FCQ2jqAqkSQoO3J6Is355JoikkRKKylkpLFqiGmocYI3F8QJSGQCQ3g8egTiNFZAjkoIUCMmALjoHIOAiXGiZ3A8TzPFJbZso+3wRD2DHaOscL5rkkiKGC6i-GsGw7FIUKKCKJlLuxa6ca5NnIfZjnOZ5vFuR5Xk+X5EUdpm4TKTEJgMHMIyIoq6jink2i-hMcWFJoM6SAVYHLhZXE1WVdkOU5fAuTVVCwagmA8PVvn+aeZKBaQ9yPC84Uye2+EtYggqDakuSKBCujaIomxaZk+jQlCEzRIiKWQgGlasWZK7FZZc2IeVi1Va5a0bVt3k7U1F1Pm1vaddEvw9eIfW5loulFjyymjKWiiTWx5moJBAC2ADCqAuC4XDcIIzzoAIeIajglw3EQFDxgA+g2iNydF93wrEhiqf6ejPeI4rRJ68zKDM8rpflgaLi06A1MhhL0u0ACyrZnZFBHDL8YxfYCMy-CCr2IP6DDjBK4iAoopbesx6tVrc2KM7Bx4iLAPDoDwYAkOgu5gJgAAUuR5AAlDgQY+44sD+xAQs2tFqnioKuiFspqS6BCWhxLoFjKgIqAQHAwjonhwtdggAC0yRrHC+yGMTwr0XbLf-SqVYOE4rgN1nTfPfn6hTBMKI6J1FFKHCGg6I9kwmH28Ll17gPnGPUVN-nSkqWpSsaSKYK5Ooem0QNxYfqTQNhvi++m0o+gkNys5u4qKWIso4pdhqE0L6JWBgqKqEfuBEGbkdwIUEhAV+l08zaDUJMfQ9F5S-FdoAyQjseRzHmPoHkOwoHTRgdBOC8DbKILTEjaKIC0HTiJsOLGOZKKwnECQQwcw9hGUVKpMhRVIKzWsuDSASCnwJDBKYIaxYxqdX2KgoR5kYGlXEbYSGy1qp8Xci5eGmRZLj0IsYReWQ27cnlHkaYKVZwDyDFNYRJUwYIIqktDU0N1qbW2oY86jdCKCl0kpPY0xEQikmAAnGLs5FbEBHw7QKiVwUw3DTOmDMmYCBZmzBmjRJEizhLpR6OlFBzE7iUsE-oJzkVSOlYseVlAFU1trCRdD-HDChLyR6cx4SqFLJsCpOhXx6HAdPQo6wKyD2qCnP2LSjEHxMblEgkwZgrGLioHYo5vwlHwdkCECQQHqDwRNCuQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAFgBMAGhABPRAEYAzMpIAOAGwBOAOzqArLsmb125YoC+l2WiwQSASQG8u6ADb5iJKgQCCZPTMwhzcfILCYgjKBooaDOK6KrraBjG6mrIKCOpxBgwFBboG2gm6Fta2GNjkAK4CLgJQXqQACn4AqjSMLEggoa4RfVGK4tqSJJqS+QkMinPlillKc+IkDMbqkuLKktra6qqVIHY1ZPWNzZ0EAPIkAGKORI5UABI9IZyDQsNKYxNTGbiOYLCzLBCKEwGdYWeaJZSaRLqXTHU4Oc4NLhNJwQdxgFo+V5+VoUEgAGQo9wIJFalCoNAAIh8+gNwj9QFFdmpRgwDMjETpFAZheDRgZNJNxQx9vpYlpUdV0RcsVAcXiCW9iaSyI4AOKvam06iM5nsL5syKILkkHl8jLiQXCgyimJxIWaRTjBFpTRpBX2OqY7GOXH4wikTUkkgMm4AdTadJNwRZ5v47NEK104JKEuBU0kQu0vsOKJsJ0VgcuarD3kj2pu-gIFFN-VTQw5El0uhIDuRKWUOz00pdUhtaXmDE0G2BsX9Z2V2LwtR4PEEZLAADMeK1MHBYJANUSoxSqeQKBS-EnemawmnLdFJNyZ-yHdohSL5H9J2OPYou3Lik0OclSDVUlxXQQyC4KAAAtt13WB91wcNCS1cg9QNM8LyvT5b3bDMHyfXkX0dD9shUApJSmeZVEkXk-TLNFKxVEhwNXAQGVQAB3AQdz3A8ULraM41IShsIoJlkxvb57zMOIHWlWIxnULREnBXJoVKKYGFyHR1HEAxJGA5jF2XdjOJ4vjEMgEg-C49BXCaCyBDJQQoAZMB3HQOQcCEmN4weJ4XleCSW1ZO9fmiLsSEkMwNnmEp8hkT8cjGdZNmBcpZlLKoAwxKs2MEZyrKQ2z7Mc9zuJctyPK8nywrbdMojknsp1SUYDlUrMUonbQf09QzEs9dRjPyljCo4qqSpsuyHL4JyqqoGDUEwHhau83yj1JfzSEeZ43lCqTWzwprEA9PrlF0MZjAycwpHUcFZSogtci0OZNGUUaFzAsyiqmhDStmirnKWla1s8jaGpO2S31axSOpUxFuuyLRc0nT0GDoiwnS+0DWNQCCAFsAGFUHcdwuG4QRXnQARcRVHBrjuIgKFjAB9OsoZkyLIWBG1EQYVQUj5KZwX2OItli-S9k0X8RsYitWnQWokIJOkOgAWWbI7wvwkZ-kmaYCmBeY-zBFKMgYSYxUHR9xGRAxjPuLFKZgg8RFgHh0B4MASHQLcwEwAAKGYGAAShwJjnZcWA3YgLmLUiwzRQ9bt7bugddjGHZrDLARUAgOBhDRXDuY7BAAFpMhSivNP2euG4bz6FYDZxXA8UvE-LxRkQ0WI+UUaitm0NSevmDQdBSaUpDhQfccuTuIvLh1sx0kgtOmAzVAFeUW-nPGQzxRe9aUfQSF2TG9GUZETAenrxB2SZ0d5P9YnGIC95Agrfpczd4P4iAx9ToIBKGoaYXZpiSGKHbUUUgraPlSHRHSUwPriHnuNH+UFYL-2soAlM0NIpTjAZnd0UD1C8mRkoCwaxyipGlFfNIBl0GmQgpNSyANIBAPvCPcEekfwFhMCoR8KlmE-VYcVDhDggbzUqjxVyTkIbZGkl3Aioxkooz5rsWKssVIlHMFYT+JkxHmX+gAsqc0VQg2WqtdaSjjplwIh6CUBwdh8hUtA5OKV9JunFEggs5goSiPxkTUm5NKZphpnTCmTQuE8wKBKUY+kH6+hiKUdRiAizqA0JIWKuhMbijSY7QxSsVacPwQ4kYKSbQpBSJoFIOxJzpIQLdG0ehkRSCmJdEwTsXaxzKcopeqjfRxHAfpDIxg5jTFFFA+BuQdICL5BsbQudLBAA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -100,6 +92,7 @@ export const boardMachine = setup({
     nextShape: initialShapeType,
     shapesBag: [...initialShapesTypes],
     score: 0,
+    linesCleared: 0,
   }),
   on: {
     "BTN.RESET": ".Initial",
@@ -237,35 +230,39 @@ export const boardMachine = setup({
           entry: enqueueActions(({ enqueue, context }) => {
             // enqueue.raise("AUTO.FINISH");
             // Merging active shape with the board
-            enqueue.assign({
-              grid: ({ context }) => {
-                let newGrid = context.grid.map((row) => [...row]);
-                const { type, position, rotation } =
-                  context.shapeRef.getSnapshot().context;
-                const shape = getActiveShape(type, rotation, position);
-                shape.forEach(([r, c]) => {
-                  newGrid[r][c] = 1;
-                });
+            enqueue.assign(({ context }) => {
+              let newGrid = context.grid.map((row) => [...row]);
+              const { type, position, rotation } =
+                context.shapeRef.getSnapshot().context;
+              const shape = getActiveShape(type, rotation, position);
+              shape.forEach(([r, c]) => {
+                newGrid[r][c] = 1;
+              });
 
-                // Handle strike - remove filled rows and update score
-                const strikedRows = getFullRowsCount(newGrid);
-                if (strikedRows > 0) {
-                  newGrid = newGrid.filter((row) =>
-                    row.some((cell) => cell === 0)
-                  );
-                  while (newGrid.length < BOARD_GRID_ROWS) {
-                    newGrid.unshift(new Array(10).fill(0));
-                  }
-                  // Update score
+              // Handle strike - remove filled rows and update score
+              const strikedRows = getFullRowsCount(newGrid);
+              let newScore = context.score;
+              if (strikedRows > 0) {
+                newGrid = newGrid.filter((row) =>
+                  row.some((cell) => cell === 0)
+                );
+                while (newGrid.length < BOARD_GRID_ROWS) {
+                  newGrid.unshift(new Array(10).fill(0));
                 }
+                // Update score
+                newScore +=
+                  strikedRows > 1 ? strikedRows * 200 : strikedRows * 100;
+              }
 
-                return newGrid;
-              },
+              return {
+                grid: newGrid,
+                score: newScore,
+                linesCleared: context.linesCleared + strikedRows,
+              };
             });
 
             // Setting New Shape
             enqueue(({ context }) => {
-              console.log("HandleCollision 2");
               context.shapeRef.send({
                 type: "RESET",
                 shape: context.nextShape,

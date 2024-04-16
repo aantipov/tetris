@@ -1,6 +1,6 @@
 import type { Shape } from "./shapes";
 import { StatusBar } from "expo-status-bar";
-import React, { StrictMode, useState } from "react";
+import React, { StrictMode } from "react";
 import { View, Button, Text } from "react-native";
 import MIcons from "@expo/vector-icons/MaterialIcons";
 import CircleButtonWithIcon from "./components/Button";
@@ -17,10 +17,6 @@ function hasShapeCell(shape: Shape, row: number, col: number) {
 
 export default function TetrisApp() {
   const [boardState, sendBoardEvent] = useMachine(boardMachine);
-  const shapeType = useSelector(
-    boardState.context.shapeRef,
-    (state) => state.context.type
-  );
   const activeShape = useSelector(boardState.context.shapeRef, (state) =>
     getActiveShape(
       state.context.type,
@@ -29,8 +25,6 @@ export default function TetrisApp() {
     )
   );
   const nextShapeType = boardState.context.nextShape;
-  const [score, setScore] = useState(0);
-  const [linesCleared, setLinesCleared] = useState(0);
 
   function reset() {
     sendBoardEvent({ type: "BTN.RESET" });
@@ -93,7 +87,9 @@ export default function TetrisApp() {
                         key={j}
                         style={
                           cell === 1 ||
-                          (activeShape && hasShapeCell(activeShape, i, j))
+                          (!boardState.matches("Initial") &&
+                            activeShape &&
+                            hasShapeCell(activeShape, i, j))
                             ? styles.fullCell
                             : styles.cell
                         }
@@ -106,9 +102,11 @@ export default function TetrisApp() {
           </View>
           <View style={{ paddingLeft: 20 }}>
             <Text style={{ fontWeight: "600" }}>Score</Text>
-            <Text style={{ fontSize: 20 }}>{score}</Text>
+            <Text style={{ fontSize: 20 }}>{boardState.context.score}</Text>
             <Text style={{ fontWeight: "600", paddingTop: 20 }}>Lines</Text>
-            <Text style={{ fontSize: 20 }}>{linesCleared}</Text>
+            <Text style={{ fontSize: 20 }}>
+              {boardState.context.linesCleared}
+            </Text>
             <Text style={{ fontWeight: "600", paddingTop: 20 }}>Next</Text>
             {nextShapeType === null ? null : (
               <NextShapeBoard nextShapeType={nextShapeType} />
@@ -204,9 +202,11 @@ export default function TetrisApp() {
               />
             </View>
           )}
-          <View style={{ marginLeft: 20 }}>
-            <Button title="reset" onPress={reset} />
-          </View>
+          {!boardState.matches("Initial") && (
+            <View style={{ marginLeft: 20 }}>
+              <Button title="reset" onPress={reset} />
+            </View>
+          )}
         </View>
         <StatusBar style="auto" />
       </View>
