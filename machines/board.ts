@@ -75,15 +75,18 @@ export const boardMachine = setup({
       | { type: "BTN.SHAPE.DROP" }
       | { type: "BTN.SHAPE.ROTATE" }
       | { type: "SHAPE.DOWN.FINISHED" }
-      | { type: "AUTO.NEW_SHAPE" }
+      | { type: "NEW_SHAPE" }
       | { type: "DROP.STEP_COMPLETED" }
       | { type: "AUTO.FINISH" };
   },
   actors: {
     shapeM: shapeMachine,
   },
+  guards: {
+    cantMoveDown: ({ context }) => !canMoveDown(context),
+  },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAFgBMAGhABPRAEYAzMpIAOAGwBOAOzqArLsmb125YoC+l2WiwQSASQG8u6ADb5iJKgQCCZPTMwhzcfILCYgjKBooaDOK6KrraBjG6mrIKCOpxBgwFBboG2gm6Fta2GNjkAK4CLgJQXqQACn4AqjSMLEggoa4RfVGK4tqSJJqS+QkMinPlillKc+IkDMbqkuLKktra6qqVIHY1ZPWNzZ0EAPIkAGKORI5UABI9IZyDQsNKYxNTGbiOYLCzLBCKEwGdYWeaJZSaRLqXTHU4Oc4NLhNJwQdxgFo+V5+VoUEgAGQo9wIJFalCoNAAIh8+gNwj9QFFdmpRgwDMjETpFAZheDRgZNJNxQx9vpYlpUdV0RcsVAcXiCW9iaSyI4AOKvam06iM5nsL5syKILkkHl8jLiQXCgyimJxIWaRTjBFpTRpBX2OqY7GOXH4wikTUkkgMm4AdTadJNwRZ5v47NEK104JKEuBU0kQu0vsOKJsJ0VgcuarD3kj2pu-gIFFN-VTQw5El0uhIDuRKWUOz00pdUhtaXmDE0G2BsX9Z2V2LwtR4PEEZLAADMeK1MHBYJANUSoxSqeQKBS-EnemawmnLdFJNyZ-yHdohSL5H9J2OPYou3Lik0OclSDVUlxXQQyC4KAAAtt13WB91wcNCS1cg9QNM8LyvT5b3bDMHyfXkX0dD9shUApJSmeZVEkXk-TLNFKxVEhwNXAQGVQAB3AQdz3A8ULraM41IShsIoJlkxvb57zMOIHWlWIxnULREnBXJoVKKYGFyHR1HEAxJGA5jF2XdjOJ4vjEMgEg-C49BXCaCyBDJQQoAZMB3HQOQcCEmN4weJ4XleCSW1ZO9fmiLsSEkMwNnmEp8hkT8cjGdZNmBcpZlLKoAwxKs2MEZyrKQ2z7Mc9zuJctyPK8nywrbdMojknsp1SUYDlUrMUonbQf09QzEs9dRjPyljCo4qqSpsuyHL4JyqqoGDUEwHhau83yj1JfzSEeZ43lCqTWzwprEA9PrlF0MZjAycwpHUcFZSogtci0OZNGUUaFzAsyiqmhDStmirnKWla1s8jaGpO2S31axSOpUxFuuyLRc0nT0GDoiwnS+0DWNQCCAFsAGFUHcdwuG4QRXnQARcRVHBrjuIgKFjAB9OsoZkyLIWBG1EQYVQUj5KZwX2OItli-S9k0X8RsYitWnQWokIJOkOgAWWbI7wvwkZ-kmaYCmBeY-zBFKMgYSYxUHR9xGRAxjPuLFKZgg8RFgHh0B4MASHQLcwEwAAKGYGAAShwJjnZcWA3YgLmLUiwzRQ9bt7bugddjGHZrDLARUAgOBhDRXDuY7BAAFpMhSivNP2euG4bz6FYDZxXA8UvE-LxRkQ0WI+UUaitm0NSevmDQdBSaUpDhQfccuTuIvLh1sx0kgtOmAzVAFeUW-nPGQzxRe9aUfQSF2TG9GUZETAenrxB2SZ0d5P9YnGIC95Agrfpczd4P4iAx9ToIBKGoaYXZpiSGKHbUUUgraPlSHRHSUwPriHnuNH+UFYL-2soAlM0NIpTjAZnd0UD1C8mRkoCwaxyipGlFfNIBl0GmQgpNSyANIBAPvCPcEekfwFhMCoR8KlmE-VYcVDhDggbzUqjxVyTkIbZGkl3Aioxkooz5rsWKssVIlHMFYT+JkxHmX+gAsqc0VQg2WqtdaSjjplwIh6CUBwdh8hUtA5OKV9JunFEggs5goSiPxkTUm5NKZphpnTCmTQuE8wKBKUY+kH6+hiKUdRiAizqA0JIWKuhMbijSY7QxSsVacPwQ4kYKSbQpBSJoFIOxJzpIQLdG0ehkRSCmJdEwTsXaxzKcopeqjfRxHAfpDIxg5jTFFFA+BuQdICL5BsbQudLBAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EANgYkAzAwYAOadMUNpAVgZqAjABoQAT0QBaWVIBM0s2fEAWaQE4NAdkcBfV3rRYIJAJIDeLnQAG3xiEioCAEEyemZhDm4+QWExBDV7EnF7ezMnNSd1dQsbGz1DBCN5KQL1JzMGSS0Ge3k1d08MbHIAVwEAgSgw0gAFKIBVGkYWJBBEwJTZtNybEnsFcTNq3IZ83QNEKXk2m3kS3PECpy12jxAvbrI+gaGJggB5EgAxXyJfKgAEtMEpwFkIlog1PJMgwbBk7ND5M1TuVDiRjmptGotjYtkoCuIOvcuj4nv0uIM-BBgmBhhEAVERhQSAAZChfAgkEaUKg0AAiwNm82S4NAaTsZnR0nE13yDDMWja0icqIQN1aJC2uyRWhsTnE2XkRIepOeFKgVJpdMBjOZZF8AHEAZzudR+YL2KCRakJOI1vUDWYcmpsusVQc1U4WiQWlHrtiGloFcaSb1yZTfNTaYRSDamSQ+e8AOqjHnu+JCr38UWiRAKyWKyTiJR2aWaVXNBTo+zNLROM5neEp7xpl6W7PhPPMvlkd4jD1zKuLMWIWTSEi6xrWG4ykP7CpaByS9abaR69S2JPDx5mjNZ60M-Oz6IECgL4XVn2VbQkNRwtryDY9hnti+6ILqNzdps1ynE4dgKNeprphaeA9DwPCCCyYAAGY8CMmBwLAkAPrarLspylBslE5YzJ6SSfhCCAWFI0pngoajSj2sLhgelxOJqIYuM2gGdmYiGjuaJCoehghkFwUAABZ4QRsBEbgOb0qR9pOhRFBUTRIL0cutYILiv59lGti5DcDjiB21SrGYNgMFoip5NxBriWSY7SRhAh8qgADuAj4YRxEaVOBbFqQlEUNRFAChWdFgl+pQkHC2ixhc6zaKq8j9huzaYg48ryJsRp3CaEmUr5ggBcFoWqcR75LjWaS6hkv7HIe9iSNKiiqj2aianBJ4KM0lzSF5t4oWhfn1SFKlqSQUSBeggSDAtLKCFAfJgME6D6DgkWFiW3y-P8AIJS1RltYggGrDccGnG2eoKoNnWlC4yhbNY4hnNNyFSXNdVBYtYU+Kt618JtYNUApqCYDwe0HUdJ3RedfyAtdSWLrdX7NGVmqthi1Q2XZEbQn6qiHk9P1OIUgNjnymCoGwbDmjgM5zhEr4jAA+gAwu8ACyIxsq+iW0XjKWMSGUhwdozYTcqWwdr96UKo0vVles0haEzkks2zHODDgN2yyuCD2GZFy2aevbyB2NjNCQhQ24aSbqBVnQjt5kl4KgMkALaC6gwTBFw3CCAC6ACNSnNEBQRb81OFveoxWjZPx6i7C4fZ7uoHaNOumLObkDQ9lo9hOOJIzoD0al0jy4wi2+uMfsZ7VWKXMqSN9xUUxUJjyFkHFAbYZgZCU0riV8FJRwpxEiLAPDoDwYAkOguFgJgAAUGhyAAlDgVXzwEsBLxA6cMVbyrDS5uxuVPGQaGUEZGNXmRHlPigOFn4gbjuDuAIVAEA4DCBNIZS2JlP56l-P+KEQEQLvQ-sofihQrA21KKcQS4l-CBBCNAjOVsfxTzkHkDiBQRI8WMA0UeCgtZ5D7NXaEhtBjENvrAnICCoRIOAnCVBFR6haBjPrWyOQ+JInYRaTMNJOFd3AlCGQDR9YGlxIqAaEYbgcRUW-fKLQWhiUqqmf2NUQYCCwrhRqakFF3VMvlTWKgozQkxFCDslxR69l1I4P8ypVAyOBjJAQclFLKQhnY1KZx0RWHyoqCeORaGRijOlAxrjVD6lniYv2M0gnzTBjYyAkS5ZyE1H2Noipq62ANHlLsHFdTuRsEVP8gTar+QKUtSAK01obV2mDbam19qHWKaQ04ZT+zaCRL1JpQ9ECOFEfUoMDN4z5UJNkm8QM2kLUKZDHpMM+nBXhojZGQyKjJRISZQm642h5GlJooCIYPoLP1kshmNxVmBONuzc0IyTKSEyGcXEuxnKKlaEkw8gE1iuMxDBeorSg4YVDuHSO0cBCx3jpHDhlZ8aZxwTIL+-Zmi9QZtIYursti2FKBxfI6g64N1sdimB7UFDmCRA9FQ1QkmfyzjGauZdsR+OVHPBel8imMouWkDIUhOyXFODkJ6ZhVRGAaA2XEf0JTyhyMA1wQA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -160,6 +163,10 @@ export const boardMachine = setup({
           on: {
             "BTN.SHAPE.DOWN.RELEASED": "Idle",
           },
+          always: {
+            guard: "cantMoveDown",
+            target: "#board.Running.BottomCollisionHandling",
+          },
           states: {
             AwaitingDownLongDelay: {
               on: {
@@ -181,10 +188,6 @@ export const boardMachine = setup({
                   );
                 }
               }),
-              always: {
-                guard: ({ context }) => !canMoveDown(context),
-                target: "#board.Running.BottomCollisionHandling",
-              },
             },
             AwaitingDownShortDelay: {
               on: {
@@ -204,10 +207,6 @@ export const boardMachine = setup({
                   enqueue.raise({ type: "SHAPE.DOWN.FINISHED" }, { delay: 25 });
                 }
               }),
-              always: {
-                guard: ({ context }) => !canMoveDown(context),
-                target: "#board.Running.BottomCollisionHandling",
-              },
             },
           },
         },
@@ -230,13 +229,13 @@ export const boardMachine = setup({
             }
           }),
           always: {
-            guard: ({ context }) => !canMoveDown(context),
+            guard: "cantMoveDown",
             target: "#board.Running.BottomCollisionHandling",
           },
         },
         BottomCollisionHandling: {
           on: {
-            "AUTO.NEW_SHAPE": "Idle",
+            NEW_SHAPE: "Idle",
           },
           entry: enqueueActions(({ enqueue, context }) => {
             // enqueue.raise("AUTO.FINISH");
@@ -283,7 +282,7 @@ export const boardMachine = setup({
             // Set Next Shape
             enqueue.assign(pullNextShape);
 
-            enqueue.raise({ type: "AUTO.NEW_SHAPE" });
+            enqueue.raise({ type: "NEW_SHAPE" });
           }),
         },
       },
