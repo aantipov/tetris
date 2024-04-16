@@ -70,10 +70,11 @@ export const boardMachine = setup({
       | { type: "BTN.SHAPE.RIGHT.RELEASED" }
       | { type: "BTN.SHAPE.DOWN.PRESSED" }
       | { type: "BTN.SHAPE.DOWN.RELEASED" }
-      | { type: "SHAPE.DOWN.FINISHED" }
       | { type: "BTN.SHAPE.DROP" }
       | { type: "BTN.SHAPE.ROTATE" }
+      | { type: "SHAPE.DOWN.FINISHED" }
       | { type: "AUTO.NEW_SHAPE" }
+      | { type: "DROP.STEP_COMPLETED" }
       | { type: "AUTO.FINISH" };
   },
   actors: {
@@ -128,6 +129,7 @@ export const boardMachine = setup({
             "BTN.SHAPE.LEFT.PRESSED": "ButtonLeftPressed",
             "BTN.SHAPE.RIGHT.PRESSED": "ButtonRightPressed",
             "BTN.SHAPE.DOWN.PRESSED": "ButtonDownPressed",
+            "BTN.SHAPE.DROP": "Dropping",
             "BTN.SHAPE.ROTATE": {
               actions: ({ context }) => {
                 context.shapeRef.send({ type: "ROTATE", board: context.grid });
@@ -208,7 +210,7 @@ export const boardMachine = setup({
                       board: context.grid,
                     });
                   });
-                  enqueue.raise({ type: "SHAPE.DOWN.FINISHED" }, { delay: 50 });
+                  enqueue.raise({ type: "SHAPE.DOWN.FINISHED" }, { delay: 25 });
                 }
               }),
               always: {
@@ -221,6 +223,37 @@ export const boardMachine = setup({
                 target: "#board.Running.BottomCollisionHandling",
               },
             },
+          },
+        },
+        Dropping: {
+          on: {
+            "DROP.STEP_COMPLETED": {
+              target: "#board.Running.Dropping",
+              reenter: true,
+            },
+          },
+          entry: enqueueActions(({ context, enqueue, event }) => {
+            const { type, position, rotation } =
+              context.shapeRef.getSnapshot().context;
+            const shape = getActiveShape(type, rotation, position);
+            if (canMoveDown(shape, context.grid)) {
+              enqueue(({ context }) => {
+                context.shapeRef.send({
+                  type: "DOWN",
+                  board: context.grid,
+                });
+              });
+              enqueue.raise({ type: "DROP.STEP_COMPLETED" }, { delay: 5 });
+            }
+          }),
+          always: {
+            guard: ({ context }) => {
+              const { type, position, rotation } =
+                context.shapeRef.getSnapshot().context;
+              const shape = getActiveShape(type, rotation, position);
+              return !canMoveDown(shape, context.grid);
+            },
+            target: "#board.Running.BottomCollisionHandling",
           },
         },
         BottomCollisionHandling: {
