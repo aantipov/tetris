@@ -1,4 +1,4 @@
-import { assign, setup, ActorRefFrom, enqueueActions } from "xstate";
+import { assign, setup, ActorRefFrom, enqueueActions, raise } from "xstate";
 import { shapesTypes, type BoardGridT, type ShapeTypeT } from "../shapes";
 import { getActiveShape, shapeMachine } from "./shape";
 
@@ -88,8 +88,14 @@ export const boardMachine = setup({
   guards: {
     cantMoveDown: ({ context }) => !canMoveDown(context),
   },
+  actions: {
+    rethrowAutoDown: raise(
+      { type: "AUTO_DOWN" },
+      { delay: 1000, id: "_autoDown" }
+    ),
+  },
 }).createMachine({
-  /** @xstate-layout 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 */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EANgAcAFhIB2AIzTJAJgDMATk0BWFQzUAaEAE9EKuWpIaN2tQ2l3V22+IC+ro2iwQSASQG8XOgANvjEJFQEAIJk9MzCHNx8gsJiCAC0DFbaiuIKDBoKCnLi4tIM4kamCPlyWeaFkhrScuoaknLunhjY5ACuAgECUGGkAApRAKo0jCxIIImBKfNpRdriJJIMzspqZQq6VRIqkiTStioqZefaCuZdIF69ZANDI1MEAPIA+gAinwB1IizBKcJZCFaISTibQkdSXOzNaTScTbI4IZwbFT5dQHMoacStB5PHwvQZcYZ+CDBMCjCIACSiYwoJAAMhQAGIEEhjShUGi-EHzRbJCGgNLSbFw0rQlS6OXIuTou4FTbbMpyORNdZNYk9UmvClQKk0ulURnM8i+ADi9O5vOoAqF7DBotSiHaGjhcmUcrUmv9hOVaiUZxRcp1imK0j13n65MpvmptMIpHNTJZ-yBPL5Tviwtd-DFojMBysBSKDBk4k0Ki0yv0WQUzWh2nO4msxVjz0NieTZotmbInzGzoWheW4o9zThdekxTkNgUamkGgbzasksK8O3e27BoTxqTptTDIz5E+0QIFDHIqL7oQUlk0a2zkKWn0Dbl8iKak0DGKbRJBkfd4zeE1aQ+H4s2BfMXSSe9IQxIoSF0KsFDyWwANsdENDqKwEVROVmyUNwPEefUwKNCCcFvCdi1WfQ5HkJF7HWHFzgbGxUO2VoGH41Ftm0UCyXAvA+h4HhBFZMAADMeDGTA4FgSAB3PdkuXICh2SiPM5ng8EH1KSxxD0Jo1mRZclRMRBl1DZEawYH01DlCwRN7Y1xMk6S5IUpTYBU3B00tDTuQ5XwiF8c0KEFODxwQycSwQK5TnVK5zGcDo7GkZUHA2Zp1DUW46juFR3MPEgvKkgQZPkxTlNUqC-kBWD9PiwykP2EgFGhDCYSAjCq1yvZN0K4qAMucqxIk6qyC4KAAAs-Ia3BT2ClkyBtO0tJ0vTQQShjbMuWRURkBU8mM7RlWOkh-WsDQKi1Uz9Cm6iqsEObFuWgLVPWq1bTCiKovpGK6IOh8lC1TY8I7Qkt1KYb8slP9xtK17KXegRPqW+qftwJqYLBjqpxqO4NlRc4ihbIqrpsmo8tGlHigmsryJJKiMZmwRflQAB3ARccCtTLRgnaKF00G4rvRK0lUFQSDyc4Hq2QkCtwvJuqKmwtGhewV3RzyuYEHn+cF37BxIUXwsi6LYra6XDoxfDtmAgNty0HK6c1L1-WXApkWAyVJANyqjZNgX-KFom3SQooN0KEN+NqPZgPRYDYRaGsCUJXRFxD35MFQNg2CNHBfmHMYImvMZvgAYU+ABZMZ2WvO39uJpKimhb0Vx9cx1FMz3qg97r9haAoQzbYO2co0TqILouS+GWipfoiGgOY8olG0ACihrYov3l5sTnWX11hDEO8FQbyAFta9QYJgi4bhBHpdABGpUuiAoAFvnW6PEIk2XASOEeE2yonATCZUBwsiUz0FqFQ5xNDT26HGOeGNr5STvg-J+L8BBvw-k-Ze1tgaS3tmvJCehtBelXAUNs90mLQPjoubYzYHqairKBMY6A+hC1PHySYDcbyr3BrHZEsJlaXAwuUQkKh0SmVOEgy41xnB3E6DPOM3DeGNUmF8ZqQIAEy1sjA7qOJ9DQkkG2QwdMUSWAjNCecW8ioKFAhyCkz8FqqX4dQWghjHb5CcqhOQtxKx2DhpUOmdYsh5CrCUbEio-yuPcbATxuARCwB4OgHgYASDoHkmATAAAKHe-EACUOB2ZuICCkyAfiIb8UsAcSURQri2E1BE6o85okRk1H1WRpR3DkQEKgCAcBhAknbjHEm6RlDZFyPkQoxRSjImVN3VcuhrBbB6jYDooF-CBBCJMwBSUOywI0HWGQqgMLWOqGoSxCsIymT2MofQZFUE9kPEcoxNRCTlkWVWWx5z6x0w7AoTYig9g9WhPiDQIdjxgC+Y7d88hVHIk0JKDskhoE5FHiuFEBVCTLkvkbWq31AqIofCiZizg6zKPMPxIetk7CWFaDIB62JLgEjUMS7yWN5o40jpAClscGgKweruMyipgzbE3DCco2wlZdg0R86avLw5mwgMKkmusSD8VuEBBwLRlxp2RLdGQux6XRnUe8g84EF7FyNFqzudyNg9QsE9UoNYay4RAciWlFQYTbmtRRNBHlKqYNQNgx+z8iwEM-sMJ1qxNSyEQfkDUQE7nGrpmsaJvpiIAXdTGZVPgtHkoLKIoBLlYTUNyMoJoeLGVOy9D1KQLlA0n1ZjakgVSPFCvLR3VYtZNgYVTcBGwLt0TlGbT06w-E+5FvcEAA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -138,13 +144,7 @@ export const boardMachine = setup({
       on: {
         "BTN.PAUSE": "Paused",
         AUTO_DOWN: {
-          actions: enqueueActions(({ context, enqueue }) => {
-            // Catch rest (not caught by child) AUTO_DOWN events and re-throw
-            enqueue.raise(
-              { type: "AUTO_DOWN" },
-              { delay: 1000, id: "autoDown" }
-            );
-          }),
+          actions: ["rethrowAutoDown"],
         },
       },
       states: {
@@ -164,10 +164,7 @@ export const boardMachine = setup({
                 if (canMoveDown(context)) {
                   context.shapeRef.send({ type: "DOWN", board: context.grid });
                 }
-                enqueue.raise(
-                  { type: "AUTO_DOWN" },
-                  { delay: 1000, id: "autoDown" }
-                );
+                enqueue("rethrowAutoDown");
               }),
             },
           },
@@ -194,10 +191,7 @@ export const boardMachine = setup({
                 if (canMoveDown(context)) {
                   context.shapeRef.send({ type: "DOWN", board: context.grid });
                 }
-                enqueue.raise(
-                  { type: "AUTO_DOWN" },
-                  { delay: 1000, id: "autoDown" }
-                );
+                enqueue("rethrowAutoDown");
               }),
             },
           },
@@ -228,10 +222,7 @@ export const boardMachine = setup({
                 if (canMoveDown(context)) {
                   context.shapeRef.send({ type: "DOWN", board: context.grid });
                 }
-                enqueue.raise(
-                  { type: "AUTO_DOWN" },
-                  { delay: 1000, id: "autoDown" }
-                );
+                enqueue("rethrowAutoDown");
               }),
             },
           },
@@ -357,13 +348,7 @@ export const boardMachine = setup({
       on: {
         "BTN.RESUME": "Running",
         AUTO_DOWN: {
-          actions: enqueueActions(({ enqueue }) => {
-            // Re-throw
-            enqueue.raise(
-              { type: "AUTO_DOWN" },
-              { delay: 1000, id: "autoDown" }
-            );
-          }),
+          actions: ["rethrowAutoDown"],
         },
       },
     },
