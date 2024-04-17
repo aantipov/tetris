@@ -89,7 +89,7 @@ export const boardMachine = setup({
     cantMoveDown: ({ context }) => !canMoveDown(context),
   },
 }).createMachine({
-  /** @xstate-layout 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-F0hwjhgJuBcEAA */
+  /** @xstate-layout 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 */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -246,56 +246,30 @@ export const boardMachine = setup({
         },
 
         ButtonDownPressed: {
-          initial: "AwaitingDownLongDelay",
           on: {
             "BTN.SHAPE.DOWN.RELEASED": "Idle",
+            "SHAPE.DOWN.FINISHED": {
+              actions: enqueueActions(({ context, enqueue }) => {
+                context.shapeRef.send({ type: "DOWN", board: context.grid });
+                enqueue.raise(
+                  { type: "SHAPE.DOWN.FINISHED" },
+                  { delay: 50, id: "downFinished" }
+                );
+              }),
+            },
           },
           always: {
             guard: "cantMoveDown",
             target: "#board.Running.BottomCollisionHandling",
           },
-          states: {
-            AwaitingDownLongDelay: {
-              on: {
-                "SHAPE.DOWN.FINISHED": {
-                  target: "AwaitingDownShortDelay",
-                },
-              },
-              entry: enqueueActions(({ context, enqueue, event }) => {
-                if (canMoveDown(context)) {
-                  enqueue(({ context }) => {
-                    context.shapeRef.send({
-                      type: "DOWN",
-                      board: context.grid,
-                    });
-                  });
-                  enqueue.raise(
-                    { type: "SHAPE.DOWN.FINISHED" },
-                    { delay: 300 }
-                  );
-                }
-              }),
-            },
-            AwaitingDownShortDelay: {
-              on: {
-                "SHAPE.DOWN.FINISHED": {
-                  target: "AwaitingDownShortDelay",
-                  reenter: true,
-                },
-              },
-              entry: enqueueActions(({ context, enqueue, event }) => {
-                if (canMoveDown(context)) {
-                  enqueue(({ context }) => {
-                    context.shapeRef.send({
-                      type: "DOWN",
-                      board: context.grid,
-                    });
-                  });
-                  enqueue.raise({ type: "SHAPE.DOWN.FINISHED" }, { delay: 25 });
-                }
-              }),
-            },
-          },
+          entry: enqueueActions(({ context, enqueue }) => {
+            context.shapeRef.send({ type: "DOWN", board: context.grid });
+            enqueue.cancel("downFinished");
+            enqueue.raise(
+              { type: "SHAPE.DOWN.FINISHED" },
+              { delay: 300, id: "downFinished" }
+            );
+          }),
         },
 
         Dropping: {
