@@ -75,6 +75,8 @@ export const boardMachine = setup({
       | { type: "BTN.SHAPE.DROP" }
       | { type: "BTN.SHAPE.ROTATE" }
       | { type: "SHAPE.DOWN.FINISHED" }
+      | { type: "SHAPE.LEFT.FINISHED" }
+      | { type: "SHAPE.RIGHT.FINISHED" }
       | { type: "NEW_SHAPE" }
       | { type: "DROP.STEP_COMPLETED" }
       | { type: "AUTO_DOWN" }
@@ -177,6 +179,15 @@ export const boardMachine = setup({
         ButtonLeftPressed: {
           on: {
             "BTN.SHAPE.LEFT.RELEASED": "Idle",
+            "SHAPE.LEFT.FINISHED": {
+              actions: enqueueActions(({ context, enqueue }) => {
+                context.shapeRef.send({ type: "LEFT", board: context.grid });
+                enqueue.raise(
+                  { type: "SHAPE.LEFT.FINISHED" },
+                  { delay: 100, id: "leftFinished" }
+                );
+              }),
+            },
             AUTO_DOWN: {
               actions: enqueueActions(({ context, enqueue }) => {
                 if (canMoveDown(context)) {
@@ -189,13 +200,27 @@ export const boardMachine = setup({
               }),
             },
           },
-          entry: ({ context }) => {
+          entry: enqueueActions(({ context, enqueue }) => {
             context.shapeRef.send({ type: "LEFT", board: context.grid });
-          },
+            enqueue.cancel("leftFinished");
+            enqueue.raise(
+              { type: "SHAPE.LEFT.FINISHED" },
+              { delay: 300, id: "leftFinished" }
+            );
+          }),
         },
         ButtonRightPressed: {
           on: {
             "BTN.SHAPE.RIGHT.RELEASED": "Idle",
+            "SHAPE.RIGHT.FINISHED": {
+              actions: enqueueActions(({ context, enqueue }) => {
+                context.shapeRef.send({ type: "RIGHT", board: context.grid });
+                enqueue.raise(
+                  { type: "SHAPE.RIGHT.FINISHED" },
+                  { delay: 100, id: "rightFinished" }
+                );
+              }),
+            },
             AUTO_DOWN: {
               actions: enqueueActions(({ context, enqueue }) => {
                 if (canMoveDown(context)) {
@@ -208,9 +233,14 @@ export const boardMachine = setup({
               }),
             },
           },
-          entry: ({ context }) => {
+          entry: enqueueActions(({ context, enqueue }) => {
             context.shapeRef.send({ type: "RIGHT", board: context.grid });
-          },
+            enqueue.cancel("rightFinished");
+            enqueue.raise(
+              { type: "SHAPE.RIGHT.FINISHED" },
+              { delay: 300, id: "rightFinished" }
+            );
+          }),
         },
         ButtonDownPressed: {
           initial: "AwaitingDownLongDelay",
@@ -238,7 +268,7 @@ export const boardMachine = setup({
                   });
                   enqueue.raise(
                     { type: "SHAPE.DOWN.FINISHED" },
-                    { delay: 500 }
+                    { delay: 300 }
                   );
                 }
               }),
