@@ -78,6 +78,7 @@ export const boardMachine = setup({
       | { type: "SHAPE.LEFT.FINISHED" }
       | { type: "SHAPE.RIGHT.FINISHED" }
       | { type: "NEW_SHAPE" }
+      | { type: "HANDLE_COLLISION" }
       | { type: "DROP.STEP_COMPLETED" }
       | { type: "AUTO_DOWN" }
       | { type: "FINISHED" };
@@ -95,7 +96,7 @@ export const boardMachine = setup({
     ),
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EANgDsADhLiAnACZFAZkWSAjAwAsAVg26ANCACeibTpLyGkqfO3zx08eI0BfN8bRYIJAJICvFzoADb4xCRUBACCZPTMwhzcfILCYgga4gwk+pKK9hqK0tra4iqSxmYZDLqyGnryKtK68rr6KuIeXhjY5ACuAoECUOGkAArRAKo0jCxIIElBqfPpGpKtJGrl4oq62pIqNiqViIVlJAzKtfXShw5dIN69ZANDI1MEAPIA+gAinwB1IizRKcJZCFanaTWTbyeRrDQqFTaQraE4ZFRwkiSfRwpQOA5tB5PXwvQZcYb+CAhMCjEgAGQoADECCQxpQqDRfiD5osUhDQOlCZsNNJ1ooGNJEXpFOjCopxNjmrVlHdpIpiT1Sa8KVAqTS6WQ-ABxAASrPZ1C5PPYYP5aUQ8mhcka6gYKhaUvkcuUipkuiyzgVGnkmp8-XJlL81NphFI-yBbI51oSvLt-AFokQmN02O0TXsuia0mc9TlGi0VikKpD6nE2g1nkeWojb31sYivzInzGNoW6eWgtODElm2UyhR6rUugqpmHSM22mctgYThLyLDzx1UZjhs+MQIFD7fIzDoQbW0VkkkhKTucrUy6McuaK9bF5Rn8lsm+1kb10YND4fgTYFU1tZJT0hBA1xICx1URFQDEQ2cqi0IpNkkS5nADcQZx-VtdXbHBjwHTNVgYStr0RetGjyEoUOHL8cgsVolEafMNybEkCMpPA+h4HhBHpMAADMeDGTA4FgSA6UZFlyAoRlohTOZwPBM8DlkaQbElBR9n2VwfSxXQJQaawmhcfCyTbPiBKE0TxMk2BpNwKhTWiMYKAZZlWSZPwiD8NyKG5MD+wgwcswQCxFXrJxFAMREtFFOUCxIddxwaGcpCs7c9VswSBGEsSJKkmSgL+QFQNUsL1KgnE6hHCiFBDA5vTnDFnXSicWhnSQcr-Eh8sEMguCgAALRzStwONyBNc0FKUlTQXCsjHQONKZGcYp8xDDoUssKR1Gfd0TL6riW2swihoEEbxsm5yZLcjyvKNM1fP8wLTWCkiVrPRE8guLRMJaJ19JSzrbgynrbDO7pw0u3j+IK26JpKh7cHKkCftqodqhkbFNH2TD4JDNF2sRCG1G61pr36mykcEX5UAAdwENGXLpECFooZTvtCk8IvSYp5DSiwR2aeKCVldr4UkF17wMfR8hUOmroZgQmdZ9nHvczySC5vyAqCkLqoF1aMlRORoRMpCGGsGd0TyOWi2RQp6gbJDVcRuyNZZtmnI57H7SgoG5Y6eElGKdQZHRZoRd2CsigbVx4pV874dy-XMFQNg2F1HAux7SJDzGb4AGFPgAWTGRlDxN5accirQPTkBLtNaGpcKfFu7auexheUWHmwzgbfmz3P86DyDcYQxUPQUPIF8caQ5UuRQSAlfJ1HqXCOkbOGtwGvBUDsgBbMvUBCEIuG4QRTXQARqXzogKABb4ns8qfBdON1YXhWoSy6BsMUcsbQxySgVHHREOgvZ5RPoJc+l9r63wEPfR+19hg4ENp9PmptSJ-RkBoC4Up8yNBDF6csygchZA9GsHEuROjp16GMdAfQOYzQ5JMSuR5+b4JDltC4jQU5rlcAxDIm9sSKDFjsOESFQxMN8CwthZVJhfAqkCL+5sJS3CsEI68zQSzN3LLhOQpQAyqBKHsfY+EmQUhvmNGSHDqC0E0X9BErd6jK1yPVdE+ZFR20KAAwohxkRD24rYwIsAHG4BELAHg6AeBgBIOgMSYBMAAAogEjgAJQ4HCXYqJkBXFQThHPQM-oiwBhDOiEyKgN5fluPUf+S4zpNgEKgCAcBhAkgbsHGehQchrHyCiJOpRyjomQrBGwLggFOADA4bQ+EAhBFCL06ekUnB1IUM+eKdsSHSyqA4WQ+RCEuGhHYA4sC1nfwQKEvMBY9DFlLGTKo9ZsjumRCUSUBxMSwPbNc82EcciYmDBRTIpTQG5jUDYG8q4qKlD+ddIq90XIArPHsOpHQ2jSlqWWcm+RsiOCuCWWwzRfkKJ4nldWKMUWQDRSHEMIsKwOBMjoHEooxHQOyBYfI0p27QncBShGVKfaa39lNeluNmhEMxCxewaoxSx0rDbABDY2j2z+WPHOedhiSqbmsS8QD-p21XHCA5jpHCwRMvCLQ+g3aMIPr+Gy8DUCIKvjfDMaCn66rTL9EO7RdFSJBlKFoGhQHZADNYRWuwyX4SUai31jd0gSlXFWVcsyvz1ReT-c4a9rhLjuEoGxBTol6tWKZTYTgQyZAOPoow7UbbYgaXvfY7d5EeCAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAWgBMkkgBYAzADYAHAEYA7AE5Jy+coCsihsoA0IAJ6JVkhgxKLrm1cs0N9DWZuUBfb2bRYECQAkgK8XOgANvjEJFQEAIJk9MzCHNx8gsJiCPLS9i4ebl6assZmlgjWziTqqvL6qvqS+rKS8tq+-hjY5ACuAmECUDGkAAoJAKo0jCxIIOnhWfM5qpqa8nLKsrLN1i4tihWIuopyTuo2ZUqyPn4gAb1kA0MjUwQA8gD6ACIfAOpEWZpThLIQrKyaFQkAyGTR1WTqW4eY5VfTydQkJSKXZ6BjteQMTRdB49ILPQZcYYkACyYB46GCEEiYBwAAkEkQfgAZChfADCH253OCVGCHyBqXmi0y4NAq30SJINgYeSUcKa8lRqn29gUsjWUMkik0hhJj3JLypUFp9MZzNZ72+f0BwOloNl2UQ6jcysVpraCic8i1FisRLsHlcRVcnnNZP6lOpdIZTJZIQdoxIvIAYgQSGNKFQaD83ewPfw5aITop9FjJK55LtSujFEcw1VEbISF4fRoDep1IZ5PHAonXrbUw6Myys2RggBxNn5wvUEtlhYV5byqzSTFKFzOQlIw-axSSVQkfT+1zKBiqRQh0dPK3Ju1psAz1mEUg-MgfMYNxlSsvSqJo7FuJETVVBxFHUUNKh1Gp5H2bZGihJpn0tJMbRTe10w-OcPkSAgKCArcq1WEMINvWscVxBxtRDTY6nUE1PCMZRlFrLDx2tSd8M-PA+h4HhBG5MAADMeDGTA4FgSAs1zfNKF5BJ1ylcsMhAiEEC8TZayHZRjVrdYGHUM8LyvG9jHvR8R3uC0+LfKd02E0TxKkmS5NgBTcCoDkxgobMKDzEgc2CIhRTZChS00zdtO3asEDbTZjURLjdAbbZVG1JFL08QcdXaR8214ikJzwj8SHcsSBDILgoAAC28+TFJ-chF2XcgKDUjS5i0sFQNUWRzx7JCHHMlRmgQqxr27bRCVUWytH0AxytfXD32nWrBAa5rWt8xSAoSILOqXfMIqigLYvIxLKKsc9lB7LQMVGhtJBPPKDXOdRlD+y59HWIGNpwmqRLqn5UAAdwEWS2twDqXVIVSKHU274uApKchcTRalrWwjHhNi3FRQc7EaBFdDUFo6lBiddoEKHYfho7-MC4LkfCyLooxgaEqG3T6gaORDEVfLPGkWaUrYuRVVG+ovGkFp6f4xnmbhny-JwO7BZ3KoQzxg01EVYdTX0VE72e5bmh2bj70JO5ujHCr+J+TBUDYNhrRwP8ALiUixgFD4aTGXlSLi-msYevToTqJsdncA54NRbRu24hoWyyhRVepd3Pe94YdcxijhpDM4GhNS4q6hUwO2W-IbA+hFayUSRc5tPBUA8gBbflUEiSIuG4QQ2XQARmR9ogKH+L4TqC3XPSFwqry0Yw1vPBxZG1NxNmW2Mmx9S4HOdl8wa73v+8H4fKzHieh6Lq7ecjkF7uG4mYS8IlPEJWw68Q3UOImyGk3qaRQvExjoD6NrDqRZJg0jIiXN+QsvBnBcAYYwOIhytAth2LBypnC2GNC4FQTYIFQO1k6X4AJJRR1LrpaQ94sTwUMIOVwjRayohxJeZwishzngfDnRyCYcxUmHk1dqsQiy0EXjpfW0gfpNB0MAlCbEdjai8HWbQ-1zwhkMAYcBwixyiLCLACRuARCwAZDwT86BpJgEwAACncLYAAlDgJyJjxGQFkdjRAJVLz4lYTiIkDdUQ2D0PYKauxbhcSBk7UkLtNoCWqoRJGNCCxFn6q-PWyUDDPXWD6NwcFLh3nbIhMoZx4QXn+kEh8SJfD3AEKgCAcBhAWhyUvfW4gfRyAPBobRehDC5Q7O4Aq8tESlDvE4duRjeihHCFETpcjkojTxhoBoGUnrwlNNqGpJA1i2ERA0BRpQO7LL8QgVhyosGZTyF4A0qI1oFPljiNQxVFQdxSQ6C5McHB1nSn9Li9ycp7KYaxIcDAjAqEwnM7ClVtoER+e6ZB+sdRwT6WAti7RmjagUGcIcGgPCKwfLM0+8L+JVR2hDTy0lWZ+V+aBO83ZpAaCaKlcukhLKXn0WsTe69rxfKpW5Gl9VGotXpZARlQtGh2DWISa8wLjQjTPESK8n1rAeAUX9WQXz1Yw01gjaVaL0XWT0NCowF4uUdmxQck014ZoHAfF8-OXtrTGtWfUZ64t2immMjM61lR1hnF2A2VUfqv6GPJc5Tu3cxJ9wHkPEeAg76T2GB61YksexNg6BsFQBptCWyhMqS4axSVQjaCfRJvRIHQKlSi3JOQrXdgaP9DhHhLijTJj9bif07LLTVGS6tQQvFmPrYNLpyULxNjkMtHYB4+wWXriVA5g52gDk8CNfQjTvBAA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -139,8 +140,9 @@ export const boardMachine = setup({
         }),
       ],
     },
+
     Running: {
-      initial: "Idle",
+      initial: "MetaIdle",
       on: {
         "BTN.PAUSE": "Paused",
         AUTO_DOWN: {
@@ -148,97 +150,108 @@ export const boardMachine = setup({
         },
       },
       states: {
-        Idle: {
+        MetaIdle: {
+          initial: "Idle",
+          description:
+            "Either no buttons actively pressed, or left/right pressed",
           on: {
-            "BTN.LEFT.PRESSED": "ButtonLeftPressed",
-            "BTN.RIGHT.PRESSED": "ButtonRightPressed",
-            "BTN.DOWN.PRESSED": "ButtonDownPressed",
-            "BTN.DROP": "Dropping",
-            "BTN.ROTATE": {
-              actions: ({ context }) => {
-                context.shapeRef.send({ type: "ROTATE", board: context.grid });
-              },
+            HANDLE_COLLISION: {
+              target: "#board.Running.BottomCollisionHandling",
             },
             AUTO_DOWN: {
               actions: enqueueActions(({ context, enqueue }) => {
                 if (canMoveDown(context)) {
-                  context.shapeRef.send({ type: "DOWN", board: context.grid });
+                  context.shapeRef.send({
+                    type: "DOWN",
+                    board: context.grid,
+                  });
+                } else {
+                  // Delay collision handling to allow the shape to move left/right
+                  enqueue.raise({ type: "HANDLE_COLLISION" }, { delay: 500 });
                 }
                 enqueue("rethrowAutoDown");
               }),
             },
           },
-          always: {
-            guard: "cantMoveDown",
-            target: "#board.Running.BottomCollisionHandling",
-          },
-        },
+          states: {
+            Idle: {
+              on: {
+                "BTN.LEFT.PRESSED": "ButtonLeftPressed",
+                "BTN.RIGHT.PRESSED": "ButtonRightPressed",
+                "BTN.DROP": "#board.Running.Dropping",
 
-        ButtonLeftPressed: {
-          on: {
-            "BTN.LEFT.RELEASED": "Idle",
-            "SHAPE.LEFT.FINISHED": {
-              actions: enqueueActions(({ context, enqueue }) => {
+                "BTN.ROTATE": {
+                  actions: ({ context }) => {
+                    context.shapeRef.send({
+                      type: "ROTATE",
+                      board: context.grid,
+                    });
+                  },
+                },
+
+                "BTN.DOWN.PRESSED": "#board.Running.ButtonDownPressed",
+              },
+              // always: {
+              //   guard: "cantMoveDown",
+              //   target: "#board.Running.BottomCollisionHandling",
+              // },
+            },
+            ButtonLeftPressed: {
+              on: {
+                "BTN.LEFT.RELEASED": "Idle",
+                "SHAPE.LEFT.FINISHED": {
+                  actions: enqueueActions(({ context, enqueue }) => {
+                    context.shapeRef.send({
+                      type: "LEFT",
+                      board: context.grid,
+                    });
+                    enqueue.raise(
+                      { type: "SHAPE.LEFT.FINISHED" },
+                      { delay: 100, id: "leftFinished" }
+                    );
+                  }),
+                },
+              },
+              entry: enqueueActions(({ context, enqueue }) => {
                 context.shapeRef.send({ type: "LEFT", board: context.grid });
+                enqueue.cancel("leftFinished");
                 enqueue.raise(
                   { type: "SHAPE.LEFT.FINISHED" },
-                  { delay: 100, id: "leftFinished" }
+                  { delay: 300, id: "leftFinished" }
                 );
               }),
             },
-            AUTO_DOWN: {
-              actions: enqueueActions(({ context, enqueue }) => {
-                if (canMoveDown(context)) {
-                  context.shapeRef.send({ type: "DOWN", board: context.grid });
-                }
-                enqueue("rethrowAutoDown");
-              }),
-            },
-          },
-          entry: enqueueActions(({ context, enqueue }) => {
-            context.shapeRef.send({ type: "LEFT", board: context.grid });
-            enqueue.cancel("leftFinished");
-            enqueue.raise(
-              { type: "SHAPE.LEFT.FINISHED" },
-              { delay: 300, id: "leftFinished" }
-            );
-          }),
-        },
-
-        ButtonRightPressed: {
-          on: {
-            "BTN.RIGHT.RELEASED": "Idle",
-            "SHAPE.RIGHT.FINISHED": {
-              actions: enqueueActions(({ context, enqueue }) => {
+            ButtonRightPressed: {
+              on: {
+                "BTN.RIGHT.RELEASED": "Idle",
+                "SHAPE.RIGHT.FINISHED": {
+                  actions: enqueueActions(({ context, enqueue }) => {
+                    context.shapeRef.send({
+                      type: "RIGHT",
+                      board: context.grid,
+                    });
+                    enqueue.raise(
+                      { type: "SHAPE.RIGHT.FINISHED" },
+                      { delay: 100, id: "rightFinished" }
+                    );
+                  }),
+                },
+              },
+              entry: enqueueActions(({ context, enqueue }) => {
                 context.shapeRef.send({ type: "RIGHT", board: context.grid });
+                enqueue.cancel("rightFinished");
                 enqueue.raise(
                   { type: "SHAPE.RIGHT.FINISHED" },
-                  { delay: 100, id: "rightFinished" }
+                  { delay: 300, id: "rightFinished" }
                 );
               }),
             },
-            AUTO_DOWN: {
-              actions: enqueueActions(({ context, enqueue }) => {
-                if (canMoveDown(context)) {
-                  context.shapeRef.send({ type: "DOWN", board: context.grid });
-                }
-                enqueue("rethrowAutoDown");
-              }),
-            },
           },
-          entry: enqueueActions(({ context, enqueue }) => {
-            context.shapeRef.send({ type: "RIGHT", board: context.grid });
-            enqueue.cancel("rightFinished");
-            enqueue.raise(
-              { type: "SHAPE.RIGHT.FINISHED" },
-              { delay: 300, id: "rightFinished" }
-            );
-          }),
         },
 
         ButtonDownPressed: {
           on: {
-            "BTN.DOWN.RELEASED": "Idle",
+            "BTN.DOWN.RELEASED": "#board.Running.MetaIdle",
             "SHAPE.DOWN.FINISHED": {
               actions: enqueueActions(({ context, enqueue }) => {
                 context.shapeRef.send({ type: "DOWN", board: context.grid });
@@ -289,7 +302,7 @@ export const boardMachine = setup({
 
         BottomCollisionHandling: {
           on: {
-            NEW_SHAPE: "Idle",
+            NEW_SHAPE: "#board.Running.MetaIdle",
             FINISHED: "#board.Finished",
           },
           entry: enqueueActions(({ enqueue, context }) => {
@@ -344,6 +357,7 @@ export const boardMachine = setup({
         },
       },
     },
+
     Paused: {
       on: {
         "BTN.RESUME": "Running",
@@ -352,6 +366,7 @@ export const boardMachine = setup({
         },
       },
     },
+
     Finished: {
       on: {
         "BTN.RESET": "Initial",
