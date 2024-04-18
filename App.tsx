@@ -128,10 +128,10 @@ export default function TetrisApp() {
           <View style={{ paddingTop: 40 }}>
             <CircleButtonWithIcon
               onPressIn={() => {
-                sendBoardEvent({ type: "BTN.SHAPE.LEFT.PRESSED" });
+                sendBoardEvent({ type: "BTN.LEFT.PRESSED" });
               }}
               onPressOut={() => {
-                sendBoardEvent({ type: "BTN.SHAPE.LEFT.RELEASED" });
+                sendBoardEvent({ type: "BTN.LEFT.RELEASED" });
               }}
             >
               <MIcons name="arrow-back" size={48} color="white" />
@@ -142,11 +142,9 @@ export default function TetrisApp() {
           <View>
             <CircleButtonWithIcon
               onPressIn={() => {
-                sendBoardEvent({ type: "BTN.SHAPE.DOWN.PRESSED" });
+                sendBoardEvent({ type: "BTN.DOWN.PRESSED" });
               }}
-              onPressOut={() =>
-                sendBoardEvent({ type: "BTN.SHAPE.DOWN.RELEASED" })
-              }
+              onPressOut={() => sendBoardEvent({ type: "BTN.DOWN.RELEASED" })}
             >
               <MIcons name="arrow-downward" size={48} color="white" />
             </CircleButtonWithIcon>
@@ -154,7 +152,7 @@ export default function TetrisApp() {
             <View style={{ marginTop: 40 }}>
               <CircleButtonWithIcon
                 onPress={() => {
-                  sendBoardEvent({ type: "BTN.SHAPE.DROP" });
+                  sendBoardEvent({ type: "BTN.DROP" });
                 }}
               >
                 <MIcons name="vertical-align-bottom" size={48} color="white" />
@@ -166,10 +164,10 @@ export default function TetrisApp() {
           <View style={{ paddingTop: 40 }}>
             <CircleButtonWithIcon
               onPressIn={() => {
-                sendBoardEvent({ type: "BTN.SHAPE.RIGHT.PRESSED" });
+                sendBoardEvent({ type: "BTN.RIGHT.PRESSED" });
               }}
               onPressOut={() => {
-                sendBoardEvent({ type: "BTN.SHAPE.RIGHT.RELEASED" });
+                sendBoardEvent({ type: "BTN.RIGHT.RELEASED" });
               }}
             >
               <MIcons name="arrow-forward" size={48} color="white" />
@@ -179,7 +177,7 @@ export default function TetrisApp() {
           {/* Drop button */}
           <CircleButtonWithIcon
             onPress={() => {
-              sendBoardEvent({ type: "BTN.SHAPE.ROTATE" });
+              sendBoardEvent({ type: "BTN.ROTATE" });
             }}
           >
             <MIcons name="rotate-left" size={48} color="white" />

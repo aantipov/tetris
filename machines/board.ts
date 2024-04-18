@@ -66,14 +66,14 @@ export const boardMachine = setup({
       | { type: "BTN.PAUSE" }
       | { type: "BTN.RESUME" }
       | { type: "BTN.RESET" }
-      | { type: "BTN.SHAPE.LEFT.PRESSED" }
-      | { type: "BTN.SHAPE.LEFT.RELEASED" }
-      | { type: "BTN.SHAPE.RIGHT.PRESSED" }
-      | { type: "BTN.SHAPE.RIGHT.RELEASED" }
-      | { type: "BTN.SHAPE.DOWN.PRESSED" }
-      | { type: "BTN.SHAPE.DOWN.RELEASED" }
-      | { type: "BTN.SHAPE.DROP" }
-      | { type: "BTN.SHAPE.ROTATE" }
+      | { type: "BTN.LEFT.PRESSED" }
+      | { type: "BTN.LEFT.RELEASED" }
+      | { type: "BTN.RIGHT.PRESSED" }
+      | { type: "BTN.RIGHT.RELEASED" }
+      | { type: "BTN.DOWN.PRESSED" }
+      | { type: "BTN.DOWN.RELEASED" }
+      | { type: "BTN.DROP" }
+      | { type: "BTN.ROTATE" }
       | { type: "SHAPE.DOWN.FINISHED" }
       | { type: "SHAPE.LEFT.FINISHED" }
       | { type: "SHAPE.RIGHT.FINISHED" }
@@ -91,11 +91,11 @@ export const boardMachine = setup({
   actions: {
     rethrowAutoDown: raise(
       { type: "AUTO_DOWN" },
-      { delay: 1000, id: "_autoDown" }
+      { delay: 1000, id: "autoDown" }
     ),
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EANgAcAFhIB2AIzTJAJgDMATk0BWFQzUAaEAE9EKuWpIaN2tQ2l3V22+IC+ro2iwQSASQG8XOgANvjEJFQEAIJk9MzCHNx8gsJiCAC0DFbaiuIKDBoKCnLi4tIM4kamCPlyWeaFkhrScuoaknLunhjY5ACuAgECUGGkAApRAKo0jCxIIImBKfNpRdriJJIMzspqZQq6VRIqkiTStioqZefaCuZdIF69ZANDI1MEAPIA+gAinwB1IizBKcJZCFaISTibQkdSXOzNaTScTbI4IZwbFT5dQHMoacStB5PHwvQZcYZ+CDBMCjCIACSiYwoJAAMhQAGIEEhjShUGi-EHzRbJCGgNLSbFw0rQlS6OXIuTou4FTbbMpyORNdZNYk9UmvClQKk0ulURnM8i+ADi9O5vOoAqF7DBotSiHaGjhcmUcrUmv9hOVaiUZxRcp1imK0j13n65MpvmptMIpHNTJZ-yBPL5Tviwtd-DFojMBysBSKDBk4k0Ki0yv0WQUzWh2nO4msxVjz0NieTZotmbInzGzoWheW4o9zThdekxTkNgUamkGgbzasksK8O3e27BoTxqTptTDIz5E+0QIFDHIqL7oQUlk0a2zkKWn0Dbl8iKak0DGKbRJBkfd4zeE1aQ+H4s2BfMXSSe9IQxIoSF0KsFDyWwANsdENDqKwEVROVmyUNwPEefUwKNCCcFvCdi1WfQ5HkJF7HWHFzgbGxUO2VoGH41Ftm0UCyXAvA+h4HhBFZMAADMeDGTA4FgSAB3PdkuXICh2SiPM5ng8EH1KSxxD0Jo1mRZclRMRBl1DZEawYH01DlCwRN7Y1xMk6S5IUpTYBU3B00tDTuQ5XwiF8c0KEFODxwQycSwQK5TnVK5zGcDo7GkZUHA2Zp1DUW46juFR3MPEgvKkgQZPkxTlNUqC-kBWD9PiwykP2EgFGhDCYSAjCq1yvZN0K4qAMucqxIk6qyC4KAAAs-Ia3BT2ClkyBtO0tJ0vTQQShjbMuWRURkBU8mM7RlWOkh-WsDQKi1Uz9Cm6iqsEObFuWgLVPWq1bTCiKovpGK6IOh8lC1TY8I7Qkt1KYb8slP9xtK17KXegRPqW+qftwJqYLBjqpxqO4NlRc4ihbIqrpsmo8tGlHigmsryJJKiMZmwRflQAB3ARccCtTLRgnaKF00G4rvRK0lUFQSDyc4Hq2QkCtwvJuqKmwtGhewV3RzyuYEHn+cF37BxIUXwsi6LYra6XDoxfDtmAgNty0HK6c1L1-WXApkWAyVJANyqjZNgX-KFom3SQooN0KEN+NqPZgPRYDYRaGsCUJXRFxD35MFQNg2CNHBfmHMYImvMZvgAYU+ABZMZ2WvO39uJpKimhb0Vx9cx1FMz3qg97r9haAoQzbYO2co0TqILouS+GWipfoiGgOY8olG0ACihrYov3l5sTnWX11hDEO8FQbyAFta9QYJgi4bhBHpdABGpUuiAoAFvnW6PEIk2XASOEeE2yonATCZUBwsiUz0FqFQ5xNDT26HGOeGNr5STvg-J+L8BBvw-k-Ze1tgaS3tmvJCehtBelXAUNs90mLQPjoubYzYHqairKBMY6A+hC1PHySYDcbyr3BrHZEsJlaXAwuUQkKh0SmVOEgy41xnB3E6DPOM3DeGNUmF8ZqQIAEy1sjA7qOJ9DQkkG2QwdMUSWAjNCecW8ioKFAhyCkz8FqqX4dQWghjHb5CcqhOQtxKx2DhpUOmdYsh5CrCUbEio-yuPcbATxuARCwB4OgHgYASDoHkmATAAAKHe-EACUOB2ZuICCkyAfiIb8UsAcSURQri2E1BE6o85okRk1H1WRpR3DkQEKgCAcBhAknbjHEm6RlDZFyPkQoxRSjImVN3VcuhrBbB6jYDooF-CBBCJMwBSUOywI0HWGQqgMLWOqGoSxCsIymT2MofQZFUE9kPEcoxNRCTlkWVWWx5z6x0w7AoTYig9g9WhPiDQIdjxgC+Y7d88hVHIk0JKDskhoE5FHiuFEBVCTLkvkbWq31AqIofCiZizg6zKPMPxIetk7CWFaDIB62JLgEjUMS7yWN5o40jpAClscGgKweruMyipgzbE3DCco2wlZdg0R86avLw5mwgMKkmusSD8VuEBBwLRlxp2RLdGQux6XRnUe8g84EF7FyNFqzudyNg9QsE9UoNYay4RAciWlFQYTbmtRRNBHlKqYNQNgx+z8iwEM-sMJ1qxNSyEQfkDUQE7nGrpmsaJvpiIAXdTGZVPgtHkoLKIoBLlYTUNyMoJoeLGVOy9D1KQLlA0n1ZjakgVSPFCvLR3VYtZNgYVTcBGwLt0TlGbT06w-E+5FvcEAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EANgDsADhLiAnACZFAZkWSAjAwAsAVg26ANCACeibTpLyGkqfO3zx08eI0BfN8bRYIJAJICvFzoADb4xCRUBACCZPTMwhzcfILCYgga4gwk+pKK9hqK0tra4iqSxmYZDLqyGnryKtK68rr6KuIeXhjY5ACuAoECUOGkAArRAKo0jCxIIElBqfPpGpKtJGrl4oq62pIqNiqViIVlJAzKtfXShw5dIN69ZANDI1MEAPIA+gAinwB1IizRKcJZCFanaTWTbyeRrDQqFTaQraE4ZFRwkiSfRwpQOA5tB5PXwvQZcYb+CAhMCjEgAGQoADECCQxpQqDRfiD5osUhDQOlCZsNNJ1ooGNJEXpFOjCopxNjmrVlHdpIpiT1Sa8KVAqTS6WQ-ABxAASrPZ1C5PPYYP5aUQ8mhcka6gYKhaUvkcuUipkuiyzgVGnkmp8-XJlL81NphFI-yBbI51oSvLt-AFokQmN02O0TXsuia0mc9TlGi0VikKpD6nE2g1nkeWojb31sYivzInzGNoW6eWgtODElm2UyhR6rUugqpmHSM22mctgYThLyLDzx1UZjhs+MQIFD7fIzDoQbW0VkkkhKTucrUy6McuaK9bF5Rn8lsm+1kb10YND4fgTYFU1tZJT0hBA1xICx1URFQDEQ2cqi0IpNkkS5nADcQZx-VtdXbHBjwHTNVgYStr0RetGjyEoUOHL8cgsVolEafMNybEkCMpPA+h4HhBHpMAADMeDGTA4FgSA6UZFlyAoRlohTOZwPBM8DlkaQbElBR9n2VwfSxXQJQaawmhcfCyTbPiBKE0TxMk2BpNwKhTWiMYKAZZlWSZPwiD8NyKG5MD+wgwcswQCxFXrJxFAMREtFFOUCxIddxwaGcpCs7c9VswSBGEsSJKkmSgL+QFQNUsL1KgnE6hHCiFBDA5vTnDFnXSicWhnSQcr-Eh8sEMguCgAALRzStwONyBNc0FKUlTQXCsjHQONKZGcYp8xDDoUssKR1Gfd0TL6riW2swihoEEbxsm5yZLcjyvKNM1fP8wLTWCkiVrPRE8guLRMJaJ19JSzrbgynrbDO7pw0u3j+IK26JpKh7cHKkCftqodqhkbFNH2TD4JDNF2sRCG1G61pr36mykcEX5UAAdwENGXLpECFooZTvtCk8IvSYp5DSiwR2aeKCVldr4UkF17wMfR8hUOmroZgQmdZ9nHvczySC5vyAqCkLqoF1aMlRORoRMpCGGsGd0TyOWi2RQp6gbJDVcRuyNZZtmnI57H7SgoG5Y6eElGKdQZHRZoRd2CsigbVx4pV874dy-XMFQNg2F1HAux7SJDzGb4AGFPgAWTGRlDxN5accirQPTkBLtNaGpcKfFu7auexheUWHmwzgbfmz3P86DyDcYQxUPQUPIF8caQ5UuRQSAlfJ1HqXCOkbOGtwGvBUDsgBbMvUBCEIuG4QRTXQARqXzogKABb4ns8qfBdON1YXhWoSy6BsMUcsbQxySgVHHREOgvZ5RPoJc+l9r63wEPfR+19hg4ENp9PmptSJ-RkBoC4Up8yNBDF6csygchZA9GsHEuROjp16GMdAfQOYzQ5JMSuR5+b4JDltC4jQU5rlcAxDIm9sSKDFjsOESFQxMN8CwthZVJhfAqkCL+5sJS3CsEI68zQSzN3LLhOQpQAyqBKHsfY+EmQUhvmNGSHDqC0E0X9BErd6jK1yPVdE+ZFR20KAAwohxkRD24rYwIsAHG4BELAHg6AeBgBIOgMSYBMAAAogEjgAJQ4HCXYqJkBXFQThHPQM-oiwBhDOiEyKgN5fluPUf+S4zpNgEKgCAcBhAkgbsHGehQchrHyCiJOpRyjomQrBGwLggFOADA4bQ+EAhBFCL06ekUnB1IUM+eKdsSHSyqA4WQ+RCEuGhHYA4sC1nfwQKEvMBY9DFlLGTKo9ZsjumRCUSUBxMSwPbNc82EcciYmDBRTIpTQG5jUDYG8q4qKlD+ddIq90XIArPHsOpHQ2jSlqWWcm+RsiOCuCWWwzRfkKJ4nldWKMUWQDRSHEMIsKwOBMjoHEooxHQOyBYfI0p27QncBShGVKfaa39lNeluNmhEMxCxewaoxSx0rDbABDY2j2z+WPHOedhiSqbmsS8QD-p21XHCA5jpHCwRMvCLQ+g3aMIPr+Gy8DUCIKvjfDMaCn66rTL9EO7RdFSJBlKFoGhQHZADNYRWuwyX4SUai31jd0gSlXFWVcsyvz1ReT-c4a9rhLjuEoGxBTol6tWKZTYTgQyZAOPoow7UbbYgaXvfY7d5EeCAA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -150,11 +150,11 @@ export const boardMachine = setup({
       states: {
         Idle: {
           on: {
-            "BTN.SHAPE.LEFT.PRESSED": "ButtonLeftPressed",
-            "BTN.SHAPE.RIGHT.PRESSED": "ButtonRightPressed",
-            "BTN.SHAPE.DOWN.PRESSED": "ButtonDownPressed",
-            "BTN.SHAPE.DROP": "Dropping",
-            "BTN.SHAPE.ROTATE": {
+            "BTN.LEFT.PRESSED": "ButtonLeftPressed",
+            "BTN.RIGHT.PRESSED": "ButtonRightPressed",
+            "BTN.DOWN.PRESSED": "ButtonDownPressed",
+            "BTN.DROP": "Dropping",
+            "BTN.ROTATE": {
               actions: ({ context }) => {
                 context.shapeRef.send({ type: "ROTATE", board: context.grid });
               },
@@ -176,7 +176,7 @@ export const boardMachine = setup({
 
         ButtonLeftPressed: {
           on: {
-            "BTN.SHAPE.LEFT.RELEASED": "Idle",
+            "BTN.LEFT.RELEASED": "Idle",
             "SHAPE.LEFT.FINISHED": {
               actions: enqueueActions(({ context, enqueue }) => {
                 context.shapeRef.send({ type: "LEFT", board: context.grid });
@@ -207,7 +207,7 @@ export const boardMachine = setup({
 
         ButtonRightPressed: {
           on: {
-            "BTN.SHAPE.RIGHT.RELEASED": "Idle",
+            "BTN.RIGHT.RELEASED": "Idle",
             "SHAPE.RIGHT.FINISHED": {
               actions: enqueueActions(({ context, enqueue }) => {
                 context.shapeRef.send({ type: "RIGHT", board: context.grid });
@@ -238,7 +238,7 @@ export const boardMachine = setup({
 
         ButtonDownPressed: {
           on: {
-            "BTN.SHAPE.DOWN.RELEASED": "Idle",
+            "BTN.DOWN.RELEASED": "Idle",
             "SHAPE.DOWN.FINISHED": {
               actions: enqueueActions(({ context, enqueue }) => {
                 context.shapeRef.send({ type: "DOWN", board: context.grid });
