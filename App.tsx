@@ -141,6 +141,9 @@ export default function TetrisApp() {
           <View>
             <CircleButtonWithIcon
               onPressIn={() => sendBoardEvent({ type: "BTN.DOWN.PRESSED" })}
+              onLongPress={() =>
+                sendBoardEvent({ type: "BTN.DOWN.LONG_PRESSED" })
+              }
               onPressOut={() => sendBoardEvent({ type: "BTN.DOWN.RELEASED" })}
             >
               <MIcons name="arrow-downward" size={48} color="white" />
@@ -172,9 +175,7 @@ export default function TetrisApp() {
 
           {/* Drop button */}
           <CircleButtonWithIcon
-            onPress={() => {
-              sendBoardEvent({ type: "BTN.ROTATE" });
-            }}
+            onPress={() => sendBoardEvent({ type: "BTN.ROTATE" })}
           >
             <MIcons name="rotate-left" size={48} color="white" />
           </CircleButtonWithIcon>
