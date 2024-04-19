@@ -26,7 +26,7 @@ export default function CircleButtonWithIcon({
       onLongPress={onLongPress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
-      delayLongPress={200}
+      delayLongPress={150}
       style={[styles.circle, { backgroundColor }]}
       android_ripple={{ color: "#005BBE", radius: 30 }}
     >
