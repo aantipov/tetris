@@ -5,6 +5,7 @@ import { Pressable, StyleSheet } from "react-native";
 
 interface PropsT {
   onPress?: () => void;
+  onLongPress?: () => void;
   onPressIn?: () => void;
   onPressOut?: () => void;
   backgroundColor?: string;
@@ -13,6 +14,7 @@ interface PropsT {
 
 export default function CircleButtonWithIcon({
   onPress,
+  onLongPress,
   onPressIn,
   onPressOut,
   backgroundColor = "#007bff",
@@ -21,8 +23,10 @@ export default function CircleButtonWithIcon({
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
+      delayLongPress={200}
       style={[styles.circle, { backgroundColor }]}
       android_ripple={{ color: "#005BBE", radius: 30 }}
     >

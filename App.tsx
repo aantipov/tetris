@@ -127,12 +127,11 @@ export default function TetrisApp() {
           {/* Move Left Button */}
           <View style={{ paddingTop: 40 }}>
             <CircleButtonWithIcon
-              onPressIn={() => {
-                sendBoardEvent({ type: "BTN.LEFT.PRESSED" });
-              }}
-              onPressOut={() => {
-                sendBoardEvent({ type: "BTN.LEFT.RELEASED" });
-              }}
+              onPressIn={() => sendBoardEvent({ type: "BTN.LEFT.PRESSED" })}
+              onLongPress={() =>
+                sendBoardEvent({ type: "BTN.LEFT.LONG_PRESSED" })
+              }
+              onPressOut={() => sendBoardEvent({ type: "BTN.LEFT.RELEASED" })}
             >
               <MIcons name="arrow-back" size={48} color="white" />
             </CircleButtonWithIcon>
@@ -141,9 +140,7 @@ export default function TetrisApp() {
           {/* MoveDown & Drop buttons */}
           <View>
             <CircleButtonWithIcon
-              onPressIn={() => {
-                sendBoardEvent({ type: "BTN.DOWN.PRESSED" });
-              }}
+              onPressIn={() => sendBoardEvent({ type: "BTN.DOWN.PRESSED" })}
               onPressOut={() => sendBoardEvent({ type: "BTN.DOWN.RELEASED" })}
             >
               <MIcons name="arrow-downward" size={48} color="white" />
@@ -163,12 +160,11 @@ export default function TetrisApp() {
           {/* Move Right button */}
           <View style={{ paddingTop: 40 }}>
             <CircleButtonWithIcon
-              onPressIn={() => {
-                sendBoardEvent({ type: "BTN.RIGHT.PRESSED" });
-              }}
-              onPressOut={() => {
-                sendBoardEvent({ type: "BTN.RIGHT.RELEASED" });
-              }}
+              onPressIn={() => sendBoardEvent({ type: "BTN.RIGHT.PRESSED" })}
+              onLongPress={() =>
+                sendBoardEvent({ type: "BTN.RIGHT.LONG_PRESSED" })
+              }
+              onPressOut={() => sendBoardEvent({ type: "BTN.RIGHT.RELEASED" })}
             >
               <MIcons name="arrow-forward" size={48} color="white" />
             </CircleButtonWithIcon>
