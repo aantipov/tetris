@@ -15,6 +15,7 @@ const BOARD_GRID_ROWS = 20;
 const BOARD_GRID_COLS = 10;
 const LONG_PRESS_MOVE_DELAY = 50;
 const AUTO_DOWN_DELAY = 500;
+const DROP_DELAY = 1;
 
 function createBoard(): BoardGridT {
   const board = [];
@@ -312,7 +313,10 @@ export const boardMachine = setup({
                   board: context.grid,
                 });
               });
-              enqueue.raise({ type: "DROP.STEP_COMPLETED" }, { delay: 5 });
+              enqueue.raise(
+                { type: "DROP.STEP_COMPLETED" },
+                { delay: DROP_DELAY }
+              );
             }
           }),
           always: {
