@@ -27,4 +27,13 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#E0E0E0",
   },
+  fullStrikeCell: {
+    rowGap: 0,
+    columnGap: 0,
+    width: 25,
+    height: 25,
+    backgroundColor: "#7CB342",
+    borderWidth: 2,
+    borderColor: "#E0E0E0",
+  },
 });

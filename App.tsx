@@ -30,6 +30,10 @@ export default function TetrisApp() {
     sendBoardEvent({ type: "BTN.RESET" });
   }
 
+  const isStrikeState = boardState.matches({
+    Running: { BottomCollisionHandling: "HandlingStrike" },
+  });
+
   return (
     <StrictMode>
       <View style={styles.container}>
@@ -79,6 +83,8 @@ export default function TetrisApp() {
             )}
 
             {boardState.context.grid.map((row, i) => {
+              const isStrikeRow =
+                isStrikeState && row.every((cell) => cell === 1);
               return (
                 <View key={i} style={{ flexDirection: "row" }}>
                   {row.map((cell, j) => {
@@ -86,10 +92,12 @@ export default function TetrisApp() {
                       <View
                         key={j}
                         style={
-                          cell === 1 ||
-                          (!boardState.matches("Initial") &&
-                            activeShape &&
-                            hasShapeCell(activeShape, i, j))
+                          isStrikeRow
+                            ? styles.fullStrikeCell
+                            : cell === 1 ||
+                              (!boardState.matches("Initial") &&
+                                activeShape &&
+                                hasShapeCell(activeShape, i, j))
                             ? styles.fullCell
                             : styles.cell
                         }

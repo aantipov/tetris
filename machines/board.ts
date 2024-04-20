@@ -381,7 +381,7 @@ export const boardMachine = setup({
                 guard: ({ context }) => getFullRowsCount(context.grid) === 0,
                 target: "SettingNewShape",
               },
-              entry: [raise({ type: "CLEAR_FULL_ROWS" })],
+              entry: [raise({ type: "CLEAR_FULL_ROWS" }, { delay: 300 })],
             },
             SettingNewShape: {
               on: {
