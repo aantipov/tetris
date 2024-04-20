@@ -94,6 +94,8 @@ export const boardMachine = setup({
       | { type: "SET_NEW_SHAPE" }
       | { type: "NEW_SHAPE_SET" }
       | { type: "HANDLE_COLLISION" }
+      | { type: "HANDLE_STRIKE" }
+      | { type: "CLEAR_FULL_ROWS" }
       | { type: "DROP.STEP_COMPLETED" }
       | { type: "AUTO_DOWN" }
       | { type: "FINISHED" };
@@ -128,7 +130,7 @@ export const boardMachine = setup({
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAWgBMkkgBYAzPNkA2AOwBOWQA55a+QEYANCACeifZOUMS8huv3qGy-Q20N5AXw-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 */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAWgBMJAMwB2SZJkAWZXIYBOBgo3LJAGhABPRADYGDEgA4ArMoYBGB1dU3JDKwF9PhtFggkAJICvFzoADb4xCRUBACCZPTMwhzcfILCYggyiiSmGkpaNnJWGjYaDoYmCA6SJST2GiX55ab5pt6+GNjkAK4CIQJQUaQACnEAqjSMLEggqaEZc1kyNqYNDG62GjK2ciqmVYhNGiTqDDKmMhpNpnKmkp0gfj1k-YPDkwQA8gD6ACLfADqRBmKU4iyEy0QkisVhImyutQcMmcpjhRxqKOkVjkOysq1xDjkJKeLwCbwGXCGJAAsmAeOhAhBwmAcAAJOJEf4AGQovwAwt8eTzAlRAt9Qck5gt0lDQFkHMUZAjJMpbO41PYGIdjIgnI5rA58jIdQdLjYyd0Ke9qVA6QymSy2V8-oCQWCZRC5ZkzFYHA1lA4bkq7jJ5HJMQ5EdZSv79u4Hrirf4+lSafTGczWUFnSMSHyAGIEAuSgDiv1GlCoNH+nvY3v48tEiDkazy7gYygeOpKCij6vWwY8sO72nDGhTr1tGcd2bAudZ+bIgTL7JLPPLlertfr80bSwV+qD6wuJIKd2NQZsA-uCLcBUkTSs2nVU5t6ftmadOfn+fdpCbkQFZVtQu7Sg2aRNr6CBtpYsIvk+JTdniA6Gv6ji1Ls1w2MS75ph8DpZs6i5soQpD-GQ3yjHusrQdCWJBh2qK6KY6qSKYN56jUdRyCQwYFI4pTlDclo+M81oEXaRE-guf7kQWFDFiQoE1hQdYQfuUGHi2CAaGxZy1Gx-oog8apRm4Ko6lcbQ2LiJLaPhlKEd+86kcuq7ripO7qbRB7NoqHEqmsxRyMSHjaJIlTcUqSgIm0lycfZ6hyE5M5fnOJHydEAHeWBvmaXROmBQ8JCKO40ZyNqdmRjFSGyOFHEFIhHhpZ+MludlpBUfEBAUH52kBccpRnLh6jKKa3ZWEoUb1ai6hNbCDDuF44nklJs7ETmeC9DwPCCDyYAAGY8KMmBwLAkD5kWJaUHycTgbMkGQjBGguHk1zuBUygVNcVhRmxp51NG9hwpcq1dKmznSa5JE7XtB3Had52wJduC0t8ABqFAxJyow4zdA0vQx5gqqZmiOFVpo3FG+yWOYQaONhrQdGtknQ5tskkPD+0CGQXBQAAFsjF1XQpK5rrdFD3Y94KDTBtRqiQdg2DkeLTUlurVFeQNhV2HgEuibUuZl227bz-NCyLqNXRj2O43E+PkJ5SRPVpxNHjUnHrGxUVPqO7S1drdN5PrKgWOYzgQxJUPpdz5uCP8qAAO4CGdou4ApuV3RQD0FW7RVDQgcI4nCDgTTYy0ogSmJvdIxJhWs7hKMUxvSTzicp2nKNozgdv8lQeP8gBRM+iTKJnFFDz7ChtgyJiVXKEaJS4einFvcobc0h3AhJ6n6c27go-0Z70a4iQBTPhxuG6NomK4pYWqJfsVgPKzkPTu1-yYKgbBsHaOBKLURiH1UYgpvi0lGHyPqGkC7+QVhxSw0ZVa2HMC4XYUYux8Sqs4H6LgXy1E3mzWOX8f5-wAcfYq+pUTSDpvpYoNhK7KDWLXXCeR7gVCqkiTYYkP4fkIngVACMAC2ApUDhHCFwbggh2ToAECyGGYBMBQAAZybkfJfixBXAAaX6oVeBDFjSlQbpqEuphiRa1bCNPQsJK4vnkIw6O60Ob2kESIsREipFNlkfIyRNIfEKKGFQHgmAuAAGs2QCnumQX4hYJgil+FRIEVBKFF2DJIGw-EI4cVxKrEkygF5tEDNPAk6oNaPGIZ-ARQj9qiPEZI6RAgAl+PtM0u0wTQkRJwKkhW+kAwTTjFoS46Sg7HFyCoNUP17DGgqBUvhG1XE1NQHUzxjS2k0ioAyPgQwiBgGTlQQW6A2BshoAQX4RAKBAk0UPHpDFFCXARGDK4lc7jaC4tUe46xVAlJUGYuZMcqntyWSshp3i5GBPtJsvadpdn7MOccnAFyrmD0dgPWgtzPadiXgSco1lBwuEsXpeocFrgjnGnoLeiz3H1K8TI8FLSYhbJhXsg5Ry2SFkCEQMU7J85yw9rpKKL4ERNBJHYuwZQCncWfKNC4Whprkv+etUY6Bei93FtQCYtI9FwPlgxcMmT9LLUaPGFEqx77qFkPqqOjhOEOHwsq1VV1XQAmBFKHV-KsgVDKuVRBOSnx6Hvs4WQZTNAKGJMSXhAKAiFmpFIwWYtojVnRfo3Vp8tDrCaJcMK00LxKijPQjsJJp7AyaPhGNIRYDxtwCIWAjIeALnQCdJRAAKSuFgACUOB1rlrjZADFAqLiZLUCiAozC6gEgMNxZu2KdjlDbBG2ErNxICFQBAOAwhyR8rHp7cQldZAKCUKodQWgdCSuqJXFUrFyq4nXjsIh8zgihAiFuk+uly6nAsaUZCT5jQZNmiSWMSIij3DxJOSp-C7QvqoQgSufFyZaGJBNTQr9MTlH6d2NUigQP7EpR1Z0UGi6MMyfBymSGaYxWNJk1E+RdCrHUF+3DsNfz4a9Kmt9xo+ITTKHcB4qxJ3awmused40R2-sY6bBcO9DonQPmjAjMEXxL0UOGtYVxwwPABlFZW6Jgxvw8ER8TW1JMJz5gLYWsnIDycMd2AM6J9jDJRPOzTAY1j+n0og2wjDcM7z3t3DOVnPbTSHTx00ypMLvMQASAMCgBnaH9LsXD39f7-yGAF9jT5DKhbgv6XCEW9L2DOOqVQ8gnD6VKN54FHjQV0t8ZB1jHr9R2HhC+cwbZ3CmjCpiO48Ir2k1qKB9+UaFnc0qzStZ9LFHKLq89bdb7WjWB1G89r2horVAJfu9EjDVAZODDICr1LVlgtq-4ibQSQnhLAGlxUeJpAeGYW2EkL4uyEtxNIeQ6IVDWrqPt2pVXaVNNO5CplOyWXwsu-V2bWR3D1GefkUp73Ljmre-cXE9gGFaEVZJB1cmIevqh92BEE1VgXFWE4XEtdgzK1qJhFQeJWtltjZWyzuPoMVSslcH6qI3AMMJbUNwyschIk+9fCp3ggA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -320,64 +322,94 @@ export const boardMachine = setup({
         },
 
         BottomCollisionHandling: {
-          on: {
-            SET_NEW_SHAPE: {
-              actions: enqueueActions(({ enqueue }) => {
-                // Setting New Shape
-                enqueue(({ context }) => {
-                  context.shapeRef.send({
-                    type: "RESET",
-                    shape: context.nextShape,
-                  });
-                });
-
-                // Set Next Shape
-                enqueue.assign(pullNextShape);
-
-                // Check if there is a collision with the new shape
-                enqueue.raise(({ context }) => ({
-                  type: canMoveDown(context) ? "NEW_SHAPE_SET" : "FINISHED",
-                }));
-              }),
+          initial: "Merging",
+          states: {
+            Merging: {
+              on: {
+                HANDLE_STRIKE: "HandlingStrike",
+              },
+              entry: [
+                assign({
+                  grid: ({ context }) => {
+                    let newGrid = context.grid.map((row) => [...row]);
+                    const { type, position, rotation } =
+                      context.shapeRef.getSnapshot().context;
+                    const shape = getActiveShape(type, rotation, position);
+                    shape.forEach(([r, c]) => (newGrid[r][c] = 1));
+                    return newGrid;
+                  },
+                }),
+                ({ context }) => {
+                  context.shapeRef.send({ type: "EMPTY" });
+                },
+                raise({ type: "HANDLE_STRIKE" }),
+              ],
             },
-            NEW_SHAPE_SET: "#board.Running.MetaIdle",
-            FINISHED: "#board.Finished",
+            HandlingStrike: {
+              on: {
+                CLEAR_FULL_ROWS: {
+                  target: "SettingNewShape",
+                  actions: [
+                    assign(({ context }) => {
+                      let newGrid = context.grid.map((row) => [...row]);
+                      const strikedRows = getFullRowsCount(newGrid);
+                      let newScore = context.score;
+                      if (strikedRows > 0) {
+                        newGrid = newGrid.filter((row) =>
+                          row.some((cell) => cell === 0)
+                        );
+                        while (newGrid.length < BOARD_GRID_ROWS) {
+                          newGrid.unshift(new Array(10).fill(0));
+                        }
+                        // Update score
+                        newScore +=
+                          strikedRows > 1
+                            ? strikedRows * 200
+                            : strikedRows * 100;
+                      }
+
+                      return {
+                        grid: newGrid,
+                        score: newScore,
+                        linesCleared: context.linesCleared + strikedRows,
+                      };
+                    }),
+                  ],
+                },
+              },
+              always: {
+                guard: ({ context }) => getFullRowsCount(context.grid) === 0,
+                target: "SettingNewShape",
+              },
+              entry: [raise({ type: "CLEAR_FULL_ROWS" })],
+            },
+            SettingNewShape: {
+              on: {
+                SET_NEW_SHAPE: {
+                  actions: enqueueActions(({ enqueue }) => {
+                    // Setting New Shape
+                    enqueue(({ context }) => {
+                      context.shapeRef.send({
+                        type: "RESET",
+                        shape: context.nextShape,
+                      });
+                    });
+
+                    // Set Next Shape
+                    enqueue.assign(pullNextShape);
+
+                    // Check if there is a collision with the new shape
+                    enqueue.raise(({ context }) => ({
+                      type: canMoveDown(context) ? "NEW_SHAPE_SET" : "FINISHED",
+                    }));
+                  }),
+                },
+                NEW_SHAPE_SET: "#board.Running.MetaIdle",
+                FINISHED: "#board.Finished",
+              },
+              entry: raise({ type: "SET_NEW_SHAPE" }, { delay: 500 }),
+            },
           },
-          entry: enqueueActions(({ enqueue, context }) => {
-            // Merging active shape with the board
-            enqueue.assign(({ context }) => {
-              let newGrid = context.grid.map((row) => [...row]);
-              const { type, position, rotation } =
-                context.shapeRef.getSnapshot().context;
-              const shape = getActiveShape(type, rotation, position);
-              shape.forEach(([r, c]) => {
-                newGrid[r][c] = 1;
-              });
-
-              // Handle strike - remove filled rows and update score
-              const strikedRows = getFullRowsCount(newGrid);
-              let newScore = context.score;
-              if (strikedRows > 0) {
-                newGrid = newGrid.filter((row) =>
-                  row.some((cell) => cell === 0)
-                );
-                while (newGrid.length < BOARD_GRID_ROWS) {
-                  newGrid.unshift(new Array(10).fill(0));
-                }
-                // Update score
-                newScore +=
-                  strikedRows > 1 ? strikedRows * 200 : strikedRows * 100;
-              }
-
-              return {
-                grid: newGrid,
-                score: newScore,
-                linesCleared: context.linesCleared + strikedRows,
-              };
-            });
-
-            enqueue.raise({ type: "SET_NEW_SHAPE" }, { delay: 300 });
-          }),
         },
       },
     },

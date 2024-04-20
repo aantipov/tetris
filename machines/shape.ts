@@ -30,26 +30,22 @@ export const shapeMachine = setup({
     };
     events:
       | { type: "RESET"; shape: ShapeTypeT }
-      | { type: "RUN" }
-      | { type: "ROTATE"; board: BoardGridT }
+      | { type: "EMPTY" }
       | { type: "LEFT"; board: BoardGridT }
       | { type: "RIGHT"; board: BoardGridT }
       | { type: "DOWN"; board: BoardGridT }
-      | { type: "DROP" };
+      | { type: "ROTATE"; board: BoardGridT };
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwBYEMAOYDEAlAogMr4AqA2gAwC6ioGA9rAJYAuT9AdrSAB6IAsAJgA0IAJ6IAjAE5pAOkGCAbAFYlkgMzT+-Df0kBfA6NSYwcgJIdWTNABtsAGXwAxctW4NmbTtz4INJSU5bWkVAA4AdkjpZQp9UQkEQX05cN0VSM1JNUksyKMTdCxLazZ7PAsAcQAJdxokEC8bX0b-SSV+EMFwyQo9PKV4yRFxRDU0pUVI8JVpPopo7UKQUxKrGwqAEQB5AHUAOUoGukYWrjapTu7e-v1Iof1RpI0NSLk9QT7OrPClfKMxhAHHoEDg3DWYE8Zx8F1A-gAtEpEogERoKHIlG9Il9+BRwrJFBQlCtIaVNnZod52HDeFIVBpMRQcqpXh0glMUclFHJIv1ieENLNYtJ-oCDEA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwBYEMAOYDEAlAogMr4AqA2gAwC6ioGA9rAJYAuT9AdrSAB6IC0ARgCswgHQAmAGwSKEgBwBmACwBOVQHZNEgDQgAnokGr5Y5fOHnla5RMGLVEgL5O9qTGDEBJDqyZoAG2wAGXwAMXJqbgZmNk5uPgRFKSkxVTVheQ0taQplQT1DBAl8sXllRWENexEpQWqNFzd0LG9fNkC8LwBxAAlImiQQGL94ocSJRQ0yimFFe1mNTIdCgQoxCk2KQQoTSuFHW2E6wUFlJpB3Vp8-ToARAHkAdQA5SkG6RlGucaMpZTSCh2KnqUjygl0BkQiimYhUdgo-2q8ikDQuV08Nw6QVwDxIAEESPh3tEvnEfqBEhRVggKC5XCAOPQIHBuBjSbF2BTeAJZIpJDI5Eo1JptDT+FkxMItrt5lJFBINBZ0S1Me1-AEOd8EkY5mIwbU5nKUjIaRJzWINBRFIilBZHKpUfSnEA */
   id: "shape",
-  initial: "Initial",
   context: ({ input }) => ({
     type: input.type,
     rotation: 0,
     position: input.type === "O" ? [0, 4] : [0, 3],
   }),
-  // entry: [() => console.log("shape entry")],
   on: {
     RESET: {
-      target: ".Initial",
       actions: assign(({ event }) => {
         return {
           type: event.shape,
@@ -58,106 +54,107 @@ export const shapeMachine = setup({
         };
       }),
     },
-  },
-  states: {
-    Initial: {
-      on: {
-        LEFT: {
-          actions: [
-            assign(({ context: { type, position, rotation }, event }) => {
-              const shape = getActiveShape(type, rotation, position);
-              if (shape.some(([, c]) => c === 0)) {
-                return {};
-              }
-              // Check if one of the cells has a filled board cell to the left of it
-              if (shape.some(([r, c]) => event.board[r][c - 1] === 1)) {
-                return {};
-              }
-              return {
-                position: [position[0], position[1] - 1],
-              };
-            }),
-          ],
-        },
-        RIGHT: {
-          actions: [
-            assign(({ context: { type, position, rotation }, event }) => {
-              const shape = getActiveShape(type, rotation, position);
-              if (shape.some(([, c]) => c === 9)) {
-                return {};
-              }
-              // Check if one of the cells has a filled board cell to the right of it
-              if (shape.some(([r, c]) => event.board[r][c + 1] === 1)) {
-                return {};
-              }
-              return {
-                position: [position[0], position[1] + 1],
-              };
-            }),
-          ],
+    EMPTY: {
+      // put Shape into a temporary "emtpy" state to hide it from the board
+      actions: assign({
+        type: "_",
+        rotation: 0,
+        position: [0, 0],
+      }),
+    },
+    LEFT: {
+      actions: [
+        assign(({ context: { type, position, rotation }, event }) => {
+          const shape = getActiveShape(type, rotation, position);
+          if (shape.some(([, c]) => c === 0)) {
+            return {};
+          }
+          // Check if one of the cells has a filled board cell to the left of it
+          if (shape.some(([r, c]) => event.board[r][c - 1] === 1)) {
+            return {};
+          }
+          return {
+            position: [position[0], position[1] - 1],
+          };
+        }),
+      ],
+    },
+    RIGHT: {
+      actions: [
+        assign(({ context: { type, position, rotation }, event }) => {
+          const shape = getActiveShape(type, rotation, position);
+          if (shape.some(([, c]) => c === 9)) {
+            return {};
+          }
+          // Check if one of the cells has a filled board cell to the right of it
+          if (shape.some(([r, c]) => event.board[r][c + 1] === 1)) {
+            return {};
+          }
+          return {
+            position: [position[0], position[1] + 1],
+          };
+        }),
+      ],
+    },
+    DOWN: {
+      actions: enqueueActions(({ enqueue }) => {
+        enqueue.assign(({ context: { position } }) => ({
+          position: [position[0] + 1, position[1]],
+        }));
+      }),
+    },
+    ROTATE: {
+      actions: [
+        assign(({ context: { type, position, rotation }, event }) => {
+          const nextRotation: Angle = ((rotation + 90) % 360) as Angle;
+          let nextShape: Shape = shapes[type][nextRotation].map(([r, c]) => [
+            r + position[0],
+            c + position[1],
+          ]);
+          let nextPosition: PositionT = [...position];
 
-          target: "Initial",
-        },
-        DOWN: {
-          actions: enqueueActions(({ enqueue }) => {
-            enqueue.assign(({ context: { position } }) => ({
-              position: [position[0] + 1, position[1]],
-            }));
-          }),
-        },
-        ROTATE: {
-          actions: [
-            assign(({ context: { type, position, rotation }, event }) => {
-              const nextRotation: Angle = ((rotation + 90) % 360) as Angle;
-              let nextShape: Shape = shapes[type][nextRotation].map(
-                ([r, c]) => [r + position[0], c + position[1]]
-              );
-              let nextPosition: PositionT = [...position];
-
-              // Move shape to the right if it's out of the left border of the board
+          // Move shape to the right if it's out of the left border of the board
+          if (nextShape.some(([r, c]) => c === -1)) {
+            nextShape = nextShape.map(([r, c]) => [r, c + 1]);
+            nextPosition = [nextPosition[0], nextPosition[1] + 1];
+            if (nextShape.some(([r, c]) => c === -1)) {
+              nextShape = nextShape.map(([r, c]) => [r, c + 1]);
+              nextPosition = [nextPosition[0], nextPosition[1] + 1];
               if (nextShape.some(([r, c]) => c === -1)) {
-                nextShape = nextShape.map(([r, c]) => [r, c + 1]);
-                nextPosition = [nextPosition[0], nextPosition[1] + 1];
-                if (nextShape.some(([r, c]) => c === -1)) {
-                  nextShape = nextShape.map(([r, c]) => [r, c + 1]);
-                  nextPosition = [nextPosition[0], nextPosition[1] + 1];
-                  if (nextShape.some(([r, c]) => c === -1)) {
-                    return {};
-                  }
-                }
+                return {};
               }
+            }
+          }
 
-              // Move shape to the left if it's out of the right border of the board
+          // Move shape to the left if it's out of the right border of the board
+          if (nextShape.some(([r, c]) => c === 10)) {
+            nextShape = nextShape.map(([r, c]) => [r, c - 1]);
+            nextPosition = [nextPosition[0], nextPosition[1] - 1];
+            if (nextShape.some(([r, c]) => c === 10)) {
+              nextShape = nextShape.map(([r, c]) => [r, c - 1]);
+              nextPosition = [nextPosition[0], nextPosition[1] - 1];
               if (nextShape.some(([r, c]) => c === 10)) {
-                nextShape = nextShape.map(([r, c]) => [r, c - 1]);
-                nextPosition = [nextPosition[0], nextPosition[1] - 1];
-                if (nextShape.some(([r, c]) => c === 10)) {
-                  nextShape = nextShape.map(([r, c]) => [r, c - 1]);
-                  nextPosition = [nextPosition[0], nextPosition[1] - 1];
-                  if (nextShape.some(([r, c]) => c === 10)) {
-                    return {};
-                  }
-                }
-              }
-
-              // Check if the shape is colliding with the bottom of the board
-              if (nextShape.some(([r, c]) => r === 20)) {
                 return {};
               }
+            }
+          }
 
-              // Check if the shape is colliding with a filled cell
-              if (nextShape.some(([r, c]) => event.board[r][c] === 1)) {
-                return {};
-              }
+          // Check if the shape is colliding with the bottom of the board
+          if (nextShape.some(([r, c]) => r === 20)) {
+            return {};
+          }
 
-              return {
-                rotation: nextRotation,
-                position: nextPosition,
-              };
-            }),
-          ],
-        },
-      },
+          // Check if the shape is colliding with a filled cell
+          if (nextShape.some(([r, c]) => event.board[r][c] === 1)) {
+            return {};
+          }
+
+          return {
+            rotation: nextRotation,
+            position: nextPosition,
+          };
+        }),
+      ],
     },
   },
 });
