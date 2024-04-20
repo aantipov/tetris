@@ -115,6 +115,7 @@ export const boardMachine = setup({
         { delay: AUTO_DOWN_DELAY, id: "autoDown" }
       );
     }),
+    stopAutoDown: cancel("autoDown"),
     moveLeft: ({ context }) => {
       context.shapeRef.send({ type: "LEFT", board: context.grid });
     },
@@ -131,7 +132,7 @@ export const boardMachine = setup({
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAWgBMJAMwB2SZJkAWZXIYBOBgo3LJAGhABPRADYGDEgA4ArMoYBGB1dU3JDKwF9PhtFggkAJICvFzoADb4xCRUBACCZPTMwhzcfILCYggyiiSmGkpaNnJWGjYaDoYmCA6SJST2GiX55ab5pt6+GNjkAK4CIQJQUaQACnEAqjSMLEggqaEZc1kyNqYNDG62GjK2ciqmVYhNGiTqDDKmMhpNpnKmkp0gfj1k-YPDkwQA8gD6ACLfADqRBmKU4iyEy0QkisVhImyutQcMmcpjhRxqKOkVjkOysq1xDjkJKeLwCbwGXCGJAAsmAeOhAhBwmAcAAJOJEf4AGQovwAwt8eTzAlRAt9Qck5gt0lDQFkHOZLKi1DZUY58spDsZEE4LLI7jZifZijkyd0Ke9qVA6QymSy2V8-oCQWCZRC5ZkzFYHA1lA4bg41vt5HJMQ5EdZSr79u4HriLf4+lSafTGczWUFHSMSHyAGIEPOSgDiv1GlCoNH+7vYnv48tEiDkazy7gY2vjJQUEeUVnWgY8sO12hk1yTr2taftmbA2dZubIgRL7KLPNL5cr1dr83rSwVeoD6wuJIKdyVAZsvfuCLcBUkTSs2j7E6tqdt6YdWdnuddpHXRBlhW1DbtKdZpA23oIC2liwk+D4lNqeK9o41iRk4SgEmUxKvimHx2hmjrzmyhCkP8ZDfKMO6ypB0JYgGbaoroph9pIphXrqNR1HIJCBgUjilOUNw2LhlL4Z+s7EbmBZFsBVYUDWYG7hB+5NggGgsWctQsb6KIPJIygRm4MgIm0lzsbiJLaKJU4fjORE-qR5DLquJByaBszgZCUHaSZazFHIxIeNokiVJxwZKKZVxtDYlnqHINnvgRX5zo50R-m5W4KdRe6NoqbHSIo7iRnI9ibLiEYIbIQVsQU8EeIl4n2d+OZORR8QEBQOUqXlxylGcxrqMoMgduiSiVU01XqLVsIMO4Xg+M8lp4TayWSXgvQ8Dwgg8mAABmPCjJgcCwJA0kUIW5AUHycQeeCPVQRoLh5Nc7gVMoFTXFYEYscedSRvYcKXAtXTJmJq0SURG1bTt+2HcdsCnbgtLfAAahQMScqMGMyd13l0eYJl6ZojilSNNwRvsljmAGji7KsGkdIt5IrdOhFZtD20CGQXBQAAFvDJ1nW1LlFpQN13R6D10bUBkkHY6p1E9bGxTq1QXn9gUdh4BLoo1EPNXOnOCDz-OC4jZ0o+jmNxNjzkrkknnKfjB41Ox6wsaFD7Du04bhVTeTayoFjmM4INLWDtkkMbAj-KgADuAhHULuBORl4sULd2VKTRqlZLiJmXHNNgdg+milJiOx+kagZKErDjDfrNIx3HifJxbyNo-yVBY-yf5416BPaGheghVoBKxZXBpl2sBJ1zsInM8t4PN5tXOt0nCNIzgA+0a7JU8ds8gNwDTR+9UVihdYTTXLflzuMoTe2v8mCoGwbA2jg5GUb8sQUKMAJgRSidrnXqXF3AIm9iiRwThfSYlKKcEopQPD7BRKoBKS9I5JRfm-D+Qwv4UQAX-AB-cHAgNyj5HIlgLgXFCkqLQiFK53BIGxewShLiwKVE-aOqAYYAFsBSoHCOELg3BBDsnQAIFkBtMBQE-pybkfJf4ECXAAaS6jnChMsYIkCDOqcoeJiibExCSeEiErhPXuMfDQ3C8C8O2gIoRIixECAkVIkRNI3HSKGFQHgmAuAAGs2QChumQX4+YJgil+BRIEVBd55xhHTXRDcyh4gUGOYxnEWw2GsMFO4egG56EfpgycSU7H8MEcI0RDYvEeNtLUm0vj-FBJ3po6Wrt3AlxYeqKhKJVTqkrk4M4pddhqGGqOWx9jUCOKqS4hpNIqAMj4EMIgYB45UD5ugNgbIaAEF+EQCgQJf693iWAuuyhdFzS1ITNoJibA5KfE+fJoVVAGUmRUpx1TxGSO8baRZW0bSrPWZs7ZOADlHJ7rbbutBTlQVCnNXi6pL61HkA8MK6sOzwgeE9EqDc4RKHeQ4ypziak-LqTEJZgK1kbK2WyfMgQiBinZNnch7S1JFXhKUYk7QemhXPn1aQ01lQNxJNcYpoMeijHQL0bebVqATFpBo1lLs1JjhyRpOajRYx9I4hfdQsg1Vh0cBUQKuEpUyrOs6QBbo2kqqyBUFhRU2JXMvroAwnFfTwhUHCTQChiTEkXhKgI+ZqSiL5sLaIlYYW2sHh0pwfoLgomREaFshlwoat0aFG4jg9ClVJCU4NobYDhtwCIWAjIeBznQAdMAmAAAUJcLAAEocAsxDSEYtkBYV0UUPchoqIlB9m1NqeQmJ2zrA0m4Yo9C3Dam8ItAQqAIBwGEOSe6dqJBdPkIoFQagSY6DTdUD6hdgpKDDjkOouFgihAiOu2NakUm8XuKURCD4lSSF1Xqbi0YkRFHuHiGxBbWZQDvXvNSJceLEy0Cacm-ZMSxUsI8k8OxarlG4ZDVkoGEkIHuTkqDpNxkU3CkqHJqJAojTcHNBg7F0OG2IlhsBThmHDTKHcB4qx3Xq2GusFsQUAzXHfbR9mRs16wwOu3JGDGoJPguYof1awrhjgeD9K+s9AwPHMLYe5QmUrR1E9zXmAsJOQCkzLbU1cC4cJRLxlTfo1MaWdVpwNEdSn4RbgnTeKdTOu2RQ0B8dhFAuFMJGT90ECS8TULsfYDxyiBm4Tg9+NpvMPtqIg1L5wT5Pg0JXfshpYHUYuMqcVLm3xuamTMkl3z3FJalhut28g2zayuBYTVmI2heuCoGUVH65qEumcSr5riyUyLkUMZLip0Q5IeE1kaFgDLwNWGcXYLFlDGmNKsYrLMV62nKUSz5czhueMO1AJpgSwDjb1D66+yD0SlVSYexA-Y-T7H7HXcwLFzRAe2zwj5szSXVYWZSlZ1KQXndq-erIoVmONofKobQSp4HBaW-2JEI14wyDNdKyT4OwOQ+1AiYaqwLirFgfy9SgZ5a1BgSoPE5gMFBpIO2sNJmcfYZ3RclixQCpNAMrYCM6nrBo4+lcAkpp52eCAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAWgBMJAMwB2SZJkAWZXIYBOBgo3LJAGhABPRADYGDEgA4ArMoYBGB1dU3JDKwF9PhtFggkAJICvFzoADb4xCRUBACCZPTMwhzcfILCYggyiiSmGkpaNnJWGjYaDoYmCA6SJST2GiX55ab5pt6+GNjkAK4CIQJQUaQACnEAqjSMLEggqaEZc1kyNqYNDG62GjK2ciqmVYhNGiTqDDKmMhpNpnKmkp0gfj1k-YPDkwQA8gD6ACLfADqRBmKU4iyEy0QkisVhImyutQcMmcpjhRxqKOkVjkOysq1xDjkJKeLwCbwGXCGJAAsmAeOhAhBwmAcAAJOJEf4AGQovwAwt8eTzAlRAt9Qck5gt0lDQFkHOZLKi1DZUY58spDsZEE4LLI7jZifZijkyd0Ke9qVA6QymSy2V8-oCQWCZRC5ZkzFYHA1lA4bg41vt5HJMQ5EdZSr79u4HriLf4+lSafTGczWUFHSMSHyAGIEPOSgDiv1GlCoNH+7vYnv48tEiDkazy7gY2vjJQUEeUVnWgY8sO12hk1yTr2taftmbA2dZubIgRL7KLPNL5cr1dr83rSwVeoD6wuJIKdyVAZsvfuCLcBUkTSs2j7E6tqdt6YdWdnuddpHXRBlhW1DbtKdZpA23oIC2liwk+D4lNqeK9o41iRk4SgEmUxKvimHx2hmjrzmyhCkP8ZDfKMO6ypB0JYgGbaoroph9pIphXrqNR1HIJCBgUjilOUNw2LhlL4Z+s7EbmBZFsBVYUDWYG7hB+5NggGgsWctQsb6KIPJIygRm4MgIm0lzsbiJLaKJU4fjORE-qR5DLquJByaBszgZCUHaSZazFHIxIeNokiVJxwZKKZVxtDYlnqHINnvgRX5zo50R-m5W4KdRe6NoqbHSIo7iRnI9ibLiEYIbIQVsQU8EeIl4n2d+OZORR8QEBQOUqXlxylGcxrqMoMgduiSiVU01XqLVsIMO4Xg+M8lp4TayWSXgvQ8Dwgg8mAABmPCjJgcCwJA0kUIW5AUHycQeeCPVQRoLh5Nc7gVMoFTXFYEYscedSRvYcKXAtXTJmJq0SURG1bTt+2HcdsCnbgtLfAAahQMScqMGMyd13l0eYJl6ZojilSNNwRvsljmAGji7KsGkdIt5IrdOhFZtD20CGQXBQAAFvDJ1nW1LlFpQN13R6D10bUBkkHY6p1E9bGxTq1QXn9gUdh4BLoo1EPNXOnOCDz-OC4jZ0o+jmNxNjzkrkknnKfjB41Ox6wsaFD7Du04bhVTeTayoFjmM4INLWDtkkMbAj-KgADuAhHULuBORl4sULd2VKTRqlZLipwdhUFzXEqDiGZx2HVaqNgWOqxQaPrNIx3HifJxbyNo-yVBY-yf5416Mu1JYdg7IoCg2LXBKYk+PEKLUahzQ+JdN7aLcJ0nCNIzgVvd73ALAqCDhO7nvVYm0shuO7lzGjcFfVG0pxwvcpPsXoLGryQ-yYKgbBsDaOByKUV+LECgowD5uhzrlHyihLBzQKCiRwThfQzxuGcOEWhcSohUGoT+39f7-yGIAii4DQHgP7sfe6Ls1LYjgSNHITh8jaBcJiDSPE2L2CUJcZBSpP54FQDDAAtgKVA4RwhcG4IIdk6ABAsgNpgKAADOTcj5CAggS4ADSXUoHS1dsSWuJAgz1xOMUTYmISTwkQlcJ69x5CBj4QI7awjRHiMkQIaRsjxE0g8XIoYVAeCYC4AAazZAKG6ZBfj5gmCKX4FEgRUAHrRV2xUTLvTKHiBQY4zGcRbDYawwU7h6HLnoZQDihEiLERIhsPivG2hqTafxgSQk4ESXnGEmxYLqhyHTGuMhWFODOB2TCahhqjjKU4iprjqkyN8baKgDI+BDCIGAeOVA+boDYGyGgBBfhEAoECEBvdWlnyUHLLQtURzmXMZPfJT5CmhVUAZcZqBnGVLcfUmk8yto2mWas9ZmycB7IOT3W23daDHKgqFOavF1RWC9vIB4YV1YdnhA8J6JVy5wiUM815UypEzNqTEBZPyVlrI2WyfMgQiBinZNnE+0C6JFXhKUYk7QumhT9tUZWgy2IWHLiSa4pTmbLVGOgXo282rUAmLSbR9LdFqTHHkjSc1GixhRKsGe6hZCKrDo4CogVcKivFWdZ0ECpRyuoVkCoJAiqKHMGxOFugDCcV9PCFQcJNDz0Ci2XC+ZqQSL5sLaIlZwU6MtTCJwfoLgomREaFs989TKsMaFG4jg9ClVJMK5MfqQiwEDbgEQsBGQ8DnOgA6YBMAAApa4WAAJQ4BZjmgNkAIWMskDc4atR3Xam1PITE7Z1gaTcMUJUZQDJM0WgIVAEA4DCHJFQwertxAGPkIoHB6gtA6ATQgD6JkRp3OcBYEaxpcLBFCBEBdSSaEfV4vcUoiEHxKnbZVEk0YkRFHuHiRuWbJzvkvW0hAtceLEy0Cacm-ZMSxUsE+J8w1sFXDxJ-SGrJ-1n0nnkkDpNRkU3CkqPJqJArKGNIiMoMgkOG2IqhnySoeLDTKHcB4qxnXq2GusFsQUAylweOR9mRtNpc12gdduSMqN0VgzajlwYzJjgeD9UK8t0SBgeOYWwk8eMpWjvxk2vMBbCcgKJvR2o-TolDKYJw8hjRyb9GsX0GleWqZEj+t8+F15ty3vpqW4aEBwr9HoMoegfaRg4tUEoRM1C7H2A8co9inOs1tPgv+NoDM0NqKcQKCE+UBifBoVh-ZDTIIYITZUQrQa-pc44l5kyqn4s8Ulzzi6aEIbbNrK4FgVWYjaG64Kk9LjxscDiqr7yCXyMUUMZLip0R5IeC1kaFgDIz1WGcXYLEiPBhRHYAbLjqvuOG943bUBGnBLAONvUHrrBPS0CZj6xRt39j9PsfspzzAsXNLF8GzcKu4u2x8uZxKlmkv+cd+rV6sihTuA0GtD5VDaCVDPMzS3+xIhGvGMjsWjUieBwB8dCI4O1x1c4TlxxAzy2HuZtQyqEqxabXmjzXkGug6UMoPIRGFBooUH2YLeolPWGRx9K4BJTTeG8EAA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -272,29 +273,26 @@ export const boardMachine = setup({
         ButtonDownPressed: {
           on: {
             "BTN.DOWN.RELEASED": "#board.Running.MetaIdle",
-            MOVE_SHAPE_DOWN: {
-              actions: enqueueActions(({ context, enqueue }) => {
-                context.shapeRef.send({ type: "DOWN", board: context.grid });
-                enqueue.raise(
-                  { type: "MOVE_SHAPE_DOWN" },
-                  { delay: LONG_PRESS_MOVE_DELAY, id: "moveShapeDown" }
-                );
-              }),
-            },
+            MOVE_SHAPE_DOWN: [
+              {
+                guard: "cantMoveDown",
+                target: "#board.Running.BottomCollisionHandling",
+              },
+              {
+                actions: [
+                  "moveDown",
+                  raise(
+                    { type: "MOVE_SHAPE_DOWN" },
+                    { delay: LONG_PRESS_MOVE_DELAY, id: "moveShapeDown" }
+                  ),
+                ],
+              },
+            ],
           },
-          always: {
-            guard: "cantMoveDown",
-            target: "#board.Running.BottomCollisionHandling",
-          },
-          entry: enqueueActions(({ context, enqueue }) => {
-            enqueue.cancel("autoDown");
-            context.shapeRef.send({ type: "DOWN", board: context.grid });
-            enqueue.cancel("moveShapeDown");
-            enqueue.raise(
-              { type: "MOVE_SHAPE_DOWN" },
-              { delay: 300, id: "moveShapeDown" }
-            );
-          }),
+          entry: [
+            "stopAutoDown",
+            raise({ type: "MOVE_SHAPE_DOWN" }, { id: "moveShapeDown" }),
+          ],
           exit: ["rethrowAutoDown"],
         },
 
