@@ -96,14 +96,14 @@ export const boardMachine = setup({
       | { type: "HANDLE_COLLISION" }
       | { type: "HANDLE_STRIKE" }
       | { type: "CLEAR_FULL_ROWS" }
-      | { type: "AUTO_DOWN" }
-      | { type: "FINISHED" };
+      | { type: "AUTO_DOWN" };
   },
   actors: {
     shapeM: shapeMachine,
   },
   guards: {
     cantMoveDown: ({ context }) => !canMoveDown(context),
+    hasCompletedRows: ({ context }) => getFullRowsCount(context.grid) > 0,
   },
   actions: {
     rethrowAutoDown: enqueueActions(({ enqueue }) => {
@@ -128,9 +128,14 @@ export const boardMachine = setup({
     rotate: ({ context }) => {
       context.shapeRef.send({ type: "ROTATE", board: context.grid });
     },
+    setNewShape: ({ context }) => {
+      context.shapeRef.send({ type: "RESET", shape: context.nextShape });
+    },
+    setNextShape: assign(pullNextShape),
+    raiseNewShapeSet: raise({ type: "NEW_SHAPE_SET" }, { delay: 300 }),
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAWgBMJAMwB2SZJkAWZXIYBOBgo3LJAGhABPRADYGDEgA4ArMoYBGB1dU3JDKwF9PhtFggkAJICvFzoADb4xCRUBACCZPTMwhzcfILCYggyiiSmGkpaNnJWGjYaDoYmCA6SJST2GiX55ab5pt6+GNjkAK4CIQJQUaQACnEAqjSMLEggqaEZc1kyNqYNDG62GjK2ciqmVYhNGiTqDDKmMhpNpnKmkp0gfj1k-YPDkwQA8gD6ACLfADqRBmKU4iyEy0QkisVhImyutQcMmcpjhRxqKOkVjkOysq1xDjkJKeLwCbwGXCGJAAsmAeOhAhBwmAcAAJOJEf4AGQovwAwt8eTzAlRAt9Qck5gt0lDQFkHOZLKi1DZUY58spDsZEE4LLI7jZifZijkyd0Ke9qVA6QymSy2V8-oCQWCZRC5ZkzFYHA1lA4bg41vt5HJMQ5EdZSr79u4HriLf4+lSafTGczWUFHSMSHyAGIEPOSgDiv1GlCoNH+7vYnv48tEiDkazy7gY2vjJQUEeUVnWgY8sO12hk1yTr2taftmbA2dZubIgRL7KLPNL5cr1dr83rSwVeoD6wuJIKdyVAZsvfuCLcBUkTSs2j7E6tqdt6YdWdnuddpHXRBlhW1DbtKdZpA23oIC2liwk+D4lNqeK9o41iRk4SgEmUxKvimHx2hmjrzmyhCkP8ZDfKMO6ypB0JYgGbaoroph9pIphXrqNR1HIJCBgUjilOUNw2LhlL4Z+s7EbmBZFsBVYUDWYG7hB+5NggGgsWctQsb6KIPJIygRm4MgIm0lzsbiJLaKJU4fjORE-qR5DLquJByaBszgZCUHaSZazFHIxIeNokiVJxwZKKZVxtDYlnqHINnvgRX5zo50R-m5W4KdRe6NoqbHSIo7iRnI9ibLiEYIbIQVsQU8EeIl4n2d+OZORR8QEBQOUqXlxylGcxrqMoMgduiSiVU01XqLVsIMO4Xg+M8lp4TayWSXgvQ8Dwgg8mAABmPCjJgcCwJA0kUIW5AUHycQeeCPVQRoLh5Nc7gVMoFTXFYEYscedSRvYcKXAtXTJmJq0SURG1bTt+2HcdsCnbgtLfAAahQMScqMGMyd13l0eYJl6ZojilSNNwRvsljmAGji7KsGkdIt5IrdOhFZtD20CGQXBQAAFvDJ1nW1LlFpQN13R6D10bUBkkHY6p1E9bGxTq1QXn9gUdh4BLoo1EPNXOnOCDz-OC4jZ0o+jmNxNjzkrkknnKfjB41Ox6wsaFD7Du04bhVTeTayoFjmM4INLWDtkkMbAj-KgADuAhHULuBORl4sULd2VKTRqlZLi8L01cVOlQ4eiYhpyhnHCgV9i4sIsfrNIx3HifJxbyNo-yVBY-yf5416MvaDxfYA243tGpi6KnKFFw5M4xrWczy3g83m1c63ScI0jOBW93vcAsCoIOE7ue9VikayKoVgPk0I14oZnGlaccIPkacKOEoTe2v8mCoGwbAbS7y7r8Huts+5HwHrRV2tRlA2H9HYAoNxZqXExHCeBmEWIlFCmUUwDhv4kF-v-QBQxgHo1AQffuJ97ouzUrUG4JAmjEhgooLYatjhuBIEoBg5g7D7DWIGAheBUAwwALYClQOEcIXBuCCHZOgAQLIDaYCgEAzk3I+SgIIEuAA0l1HOuUfIwUYRUdU5Q8TFE2JiEk8JEJXCevceQgjl6RySsIsREipEyIbPIxR0iaS+KUUMKgPBMBcAANZsgFDdMgvx8wTBFL8CiQIqBQLzjCOmjCy5lDxAoMcVin42HgU+J8dw9Blz0MoIRIjtriMkdI2RAhAn+NtM0m0ISwmRJwGk8+7gbCwXVDkOmqp1QVycGcDsmE1DDVHNUjx9TvFyIUUE20VAGR8CGEQMA8cqB83QGwNkNACC-CIBQIEFDwE9KgkoOWWhaojnMtYop1hgplNCqoAyczameIaT45ZLSYjrJtFsnZeyDk4FOecsB2NQG0CuXRWe0hgy7C9vIB4YV1YdnhA8J6JUy6vxkF81AdSvGNLaTSNZW1gXbN2fstk+ZAhEDFOybOp9DEIsUPCUoxJ2iDNCn7aoysJlsQsGXEk1wqkuJ6KMdAvQd5tWoBMWk+i2XS1dmOeBGk5qNFjCiVYaD1CyA1WHRwFRAq4RlXKs6zpD5ugMWqtSFQuFFRFWxG+ugDCcV9IXOumgFDEmJCJKVAR8zUhkXzYW0RKxwvtbQrIoVxkXBRMiI0LZH7qy1YwnBWgy51DUAlYNJBQ0hFgBG3AIhYCMh4HOdAB0wCYAABT9IsAAShwCzYt4bIDwtdqw+Bw1agqBcL9eQmJ2zrA0m4YoSoygGSZotAQqAIBwGEOSGhg9XbiH6bIBQShVDqC0DodNiAPomRGk+fYeCGb4MLcEUIER13QLoR9Xi9xSiIQfEqSQHF1bcWjEiIo9w8QaG-o+9JCB+k8WJjmsmmh+yYlipYEpkzGYWAaoW1edl2ZgDA+fIp8DoOkxmRTcKSp4GonUGsAdlcb2g0nElSGLVWS4Z8kqEe1wQwPFWJ69Ww11gtiCgGa4X6CGMaNuvWGB125IxY3RJ8VdFABrWFcMcDwfqhXluiQMDxzC2CKaJw20cJPc15gLaTkBZMwO1H6dEoY8EogE+pv0axfQaRFXpoNdG3z4RbgnLeKdLNqRvn6PQZQ9A+0jD+5sBJeJqF2Je79FQQMYajkQgBNpAuKnoVpBCoqAxPg0BXfshonClIuMqSVXnWa2ncd8hZZL-kZalnGvUxc2zayuGhgyU90SyGCoO5wtMmZVcw9HGpxKfmLKaY16cKimteQ3XQ9E8CHgdZGhYbrXrVhnF2CxOBwYUR2CJSS35Sy-GrXJVADpEScPNcW4qD+1gnpaFsx9Yox6ED9j9PsfsNzzAsXNCltx42TtTcu4CqlmyaVgtuwtp98a2MNGbQ+VQ2glRoLwTt-sSIRrxkJYWy1Mm7vw5hNqBEw1Vhz2NM4AVxxAzy1qI4FEagtUFqq520tFnifgcUCoPIcCFA4oUH2KLWINLWFxx9K4BJTTeG8EAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAWgBMJAMwB2SZJkAWZXIYBOBgo3LJAGhABPRADYGDEgA4ArMoYBGB1dU3JDKwF9PhtFggkAJICvFzoADb4xCRUBACCZPTMwhzcfILCYggyDsokyja5NjKSpg52VoYmCA6Sclb5mnLKGjZyKnVy3r4Y2OQArgIhAlBRpAAKcQCqNIwsSCCpoRkLWTIMpiSmtopWGrpqDKVViBpWciQO6vt1kjZuBd0gfn1kg8Oj0wQA8gD6ACLfADqRDmKU4yyEq0QkmUMhIDD0BURphKpkUyhONVqNnypmUThydhU9SeLwCbyGXBGJAAsmAeOhAhBwmAcAAJOJEf4AGQovwAwt8eTzAlRAt9QckFkt0lDQFkruUEWdEXoZCUCaYsU4nCQbK1yjYXKZ8Woyb0Ke9qVA6QymSy2V8-oCQWCZRC5ZkzFYHPkCftyqZ2vI5DqGDZNlY9r72u50ecLf4BlSafTGczWUFHWMSHyAGIEPOSgDiv3GlCoNH+7vYnv48tEiDkka27hR8fqCh1yismwcWiskhN2g1GiTr2taftmbA2dZubIgRL7KLPNL5cr1dri3rKwViFyDk2DFDGlKcmPBJsPbkJ7c58kGnq2l7E6tqdt6YdWdnuddpDrkQZYVtQ27SnWaQNt6CAtpYw5WEcz4mnIGg9o41gOI4tQyFYMiGl0PjPJaKYfHaGaOvObKEKQ-xkN84w7rK0HQtiBJtjkuj4kOpg3sYh6dJcNyOHsBr7DY76kTa5E-nOf40XmFCFiQoFVhQNYQbuUH7k2CAaPiJCXqUvaEuisI6m48IbKiprGnI9naJJlJkd+s5UYuy6ripW7qUxe6NoqpTwpGbSXuoiEKA4FlKAipoyLZ5wOYRPTJs50muZR8nRAB3lgb5mnMTpgXoiQijuFhzQWHZOpPhcOTqKU56Ie4XhEeSUnThRv45gp9HxAQFB+dpAWnHshmFOocIokOMg1c+shXEcphNUcHhOVOX4zpReD9DwPCCDyYAAGY8OMmBwLAkC5gWRaUHycTgfMkGQjBZx5Ki56aLkGgOPhlT8TU+InnUWH2NG8WtSlk6fjJbk7XtB3Had52wJduC0t8ABqFAxJy4w4zdQ0vaxkYXHU9zns+diKFFAPHrxJAHOehS5C49zrTDGVZvD+0CGQXBQAAFsjF1Xb1nm3RQ92PeCw0wbUsL6gUJSoTxxranTQMIiDiIeHh2wcy5W3c7tvP80LIuo1dGPY7jcT4+QEtE16rGLfCJkWLxP34gYmsGvqnvfb2yhlIb0k84I-yoAA7gIZ2i7gCk5XdFAPflT1acTB4IOcDS4fF8jrM0uS+9U+l5PU5ysy4w74mHNIRwIUex-HVvo1j-JUHj-IAc7LHZ1htiM20GzuO0ej1Fivq4no+mtKeexOMo9e2o3zdxyjaM4DbnfdwCwKgg4GeFSNNRfZcvG2PcX2OJiAOmnkIcPnCQX2OObUkWlNL-JgqBsGwNpt4d1+F3e2PcD59yKoeEkpUWxtGVrZY4ANzzwjOL6eKShiTJWIqlDaJAf5-wASMIB2MQF717kfWWWddK-UKPkOoRx8KKHkHYLE+wNClUkL9ZaOI7x6BXiQPAqAEYAFsBSoHCOELg3BBDsnQAIFk6UwCYCgIAzk3I+QgIIEuAA0oNAq-l5Y-VQTINo+IGq3zDADeofoIz3DqHoYcbRIY4OhmRIRojxGSOkQ2ORCipHThUWorkvJO7aMCHouglCPRy1YooDQ8J1jRhslhO4fFqg2IRPcex8TAwyAER4-aYiJFSJkQIPxiiaQVICVAKgPBMBcAANZsgFPdMgvx8xTBFL8eiQIqCQNPjTd6BQhywlsMGO+1Q+x5GKE+Q48VnwagKcIopXjSm+PkZU20VAGR8BGEQMA0cqCC3QGwNkNACC-CIBQIEZCwEDJgo1Wx+k+zBjsHedJiA+y4icKUPCkYCR3HyR-XBMNCmoGKd4sp1TpI7L2jaA5RyTlnJwNc25oD8YgNoA8uJBIGhcMps4FwiI0J03WH6XCqJyhIV9C4ZZniSk+NkZsmpMRdkIsOcc05bI0V3MxRcqJx9DFxIjNIUezgShXzKLNMlGFKVEhpc4ZeIK+jjHQP0LevVqBTFpPooVsTs5EkZuqZapMhy5DYVw0qcVyi1FqCSySaqNVXWdPvN0BiDW6R+pwsq5g-lzNLl85wsheyIWfFwsKEkVUBHzNSaRgsxbRErNij11CsjDgwgOTQ8g7UEh1FoXEVLNCImcJTYFUMY1xtgAm3AIhYCMh4HOdAJ1lEAAobAWAYAAShwO1WNIRq2QBxYaxw0g1CmIjFcRenyahz0uHcX5qhUItGBURAQqAIBwGEOSKhLts7iA7bIBQSgl3Fp0JMxAvYOFPyLn2XIIlsHtWCKECIu7+40JaJcO8ex6iz2PHcGq9lrB9k4hGO8qF34Vo6lAN9UCEBqD9OTA0tVqZcKxGYxmvE6jRlJsUBwAiuZgFg6fQoHCkOUxbI42m1QnAM3qkcVQt7HLRug7DTKjpiPy2PBcOErRgzolMYGmocJNgtkWgSfC-6CPGznI3Q6J1W5o046xRCeQaaXkjKiDU6IdToj9JGX0+lSgeGydJrqsnTaCHNsLRTkBlMDxDn6bYIYyi-TE7pq1BmBzonMFfKNUGv6r0s03GOG8E72d0ua+hrRHEmiwjO+o8JcjtHOBgg0A4BEEP-jaCLipagcMvOsOoP1RIzq0JYUNxb8RaByC49qgXBErIhWspl5SWU5ZiWmw8LYLg11jIiMqtgsTLWCtkpwrQVZHHpasxl0L2uBNUSMXLh5EK4j6+JwbM68INAsBN+M-7cjTea7NjZ-jpIwpGHUhpzTlsIHKu9U8tRKpnFREJ6ZCJNAtCVG-ZwR3IXrOZWdmkcK9lQERVys5t3YTesvE1J8Ha2hbYMrtr7l4ft1ZIk6pTnW926XKozSKOHoy-X2FYsuVrShUsKFw9wLRJL9vjXZnH761ie1KrqSnuQfYaxo+S2QIHqVPlpcq7wQA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -317,7 +322,10 @@ export const boardMachine = setup({
           states: {
             Merging: {
               on: {
-                HANDLE_STRIKE: "HandlingStrike",
+                HANDLE_STRIKE: [
+                  { guard: "hasCompletedRows", target: "HandlingStrike" },
+                  { target: "SettingNewShape" },
+                ],
               },
               entry: [
                 assign({
@@ -368,37 +376,24 @@ export const boardMachine = setup({
                   ],
                 },
               },
-              always: {
-                guard: ({ context }) => getFullRowsCount(context.grid) === 0,
-                target: "SettingNewShape",
-              },
               entry: [raise({ type: "CLEAR_FULL_ROWS" }, { delay: 300 })],
             },
             SettingNewShape: {
               on: {
                 SET_NEW_SHAPE: {
-                  actions: enqueueActions(({ enqueue }) => {
-                    // Setting New Shape
-                    enqueue(({ context }) => {
-                      context.shapeRef.send({
-                        type: "RESET",
-                        shape: context.nextShape,
-                      });
-                    });
-
-                    // Set Next Shape
-                    enqueue.assign(pullNextShape);
-
-                    // Check if there is a collision with the new shape
-                    enqueue.raise(({ context }) => ({
-                      type: canMoveDown(context) ? "NEW_SHAPE_SET" : "FINISHED",
-                    }));
-                  }),
+                  actions: ["setNewShape", "setNextShape", "raiseNewShapeSet"],
                 },
-                NEW_SHAPE_SET: "#board.Running.MetaIdle",
-                FINISHED: "#board.Finished",
+                NEW_SHAPE_SET: [
+                  {
+                    guard: "cantMoveDown",
+                    target: "#board.Finished",
+                  },
+                  {
+                    target: "#board.Running.MetaIdle",
+                  },
+                ],
               },
-              entry: raise({ type: "SET_NEW_SHAPE" }, { delay: 500 }),
+              entry: raise({ type: "SET_NEW_SHAPE" }, { delay: 300 }),
             },
           },
         },
