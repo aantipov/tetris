@@ -1,11 +1,4 @@
-import {
-  assign,
-  setup,
-  ActorRefFrom,
-  enqueueActions,
-  raise,
-  cancel,
-} from "xstate";
+import { assign, setup, ActorRefFrom, raise, cancel, StateFrom } from "xstate";
 import { shapesTypes, type BoardGridT, type ShapeTypeT } from "../shapes";
 import { getActiveShape, shapeMachine } from "./shape";
 
@@ -16,6 +9,41 @@ const BOARD_GRID_COLS = 10;
 const LONG_PRESS_MOVE_DELAY = 50;
 const AUTO_DOWN_DELAY = 500;
 const DROP_DELAY = 1;
+
+interface BoardContextT {
+  grid: BoardGridT;
+  shapeRef: ActorRefFrom<typeof shapeMachine>;
+  nextShape: ShapeTypeT;
+  shapesBag: ShapeTypeT[];
+  score: number;
+  linesCleared: number;
+}
+
+export type BoardEventT =
+  | { type: "BTN.START" }
+  | { type: "BTN.PAUSE" }
+  | { type: "BTN.RESUME" }
+  | { type: "BTN.RESET" }
+  | { type: "BTN.LEFT.PRESSED" }
+  | { type: "BTN.LEFT.LONG_PRESSED" }
+  | { type: "BTN.LEFT.PRESSED" }
+  | { type: "BTN.LEFT.RELEASED" }
+  | { type: "BTN.RIGHT.PRESSED" }
+  | { type: "BTN.RIGHT.LONG_PRESSED" }
+  | { type: "BTN.RIGHT.RELEASED" }
+  | { type: "BTN.DOWN.PRESSED" }
+  | { type: "BTN.DOWN.LONG_PRESSED" }
+  | { type: "BTN.DOWN.RELEASED" }
+  | { type: "BTN.DROP" }
+  | { type: "BTN.ROTATE" }
+  | { type: "MOVE.SHAPE.LEFT" }
+  | { type: "MOVE.SHAPE.RIGHT" }
+  | { type: "MOVE_SHAPE_DOWN" }
+  | { type: "SET_NEW_SHAPE" }
+  | { type: "NEW_SHAPE_SET" }
+  | { type: "HANDLE_STRIKE" }
+  | { type: "CLEAR_FULL_ROWS" }
+  | { type: "AUTO_DOWN" };
 
 function createBoard(): BoardGridT {
   const board = [];
@@ -37,15 +65,6 @@ function canMoveDown(context: BoardContextT) {
 
 function getFullRowsCount(grid: BoardGridT) {
   return grid.filter((row) => row.every((cell) => cell === 1)).length;
-}
-
-interface BoardContextT {
-  grid: BoardGridT;
-  shapeRef: ActorRefFrom<typeof shapeMachine>;
-  nextShape: ShapeTypeT;
-  shapesBag: ShapeTypeT[];
-  score: number;
-  linesCleared: number;
 }
 
 function pullNextShape({
@@ -71,31 +90,7 @@ function pullNextShape({
 export const boardMachine = setup({
   types: {} as {
     context: BoardContextT;
-    events:
-      | { type: "BTN.START" }
-      | { type: "BTN.PAUSE" }
-      | { type: "BTN.RESUME" }
-      | { type: "BTN.RESET" }
-      | { type: "BTN.LEFT.PRESSED" }
-      | { type: "BTN.LEFT.LONG_PRESSED" }
-      | { type: "BTN.LEFT.PRESSED" }
-      | { type: "BTN.LEFT.RELEASED" }
-      | { type: "BTN.RIGHT.PRESSED" }
-      | { type: "BTN.RIGHT.LONG_PRESSED" }
-      | { type: "BTN.RIGHT.RELEASED" }
-      | { type: "BTN.DOWN.PRESSED" }
-      | { type: "BTN.DOWN.LONG_PRESSED" }
-      | { type: "BTN.DOWN.RELEASED" }
-      | { type: "BTN.DROP" }
-      | { type: "BTN.ROTATE" }
-      | { type: "MOVE.SHAPE.LEFT" }
-      | { type: "MOVE.SHAPE.RIGHT" }
-      | { type: "MOVE_SHAPE_DOWN" }
-      | { type: "SET_NEW_SHAPE" }
-      | { type: "NEW_SHAPE_SET" }
-      | { type: "HANDLE_STRIKE" }
-      | { type: "CLEAR_FULL_ROWS" }
-      | { type: "AUTO_DOWN" };
+    events: BoardEventT;
   },
   actors: {
     shapeM: shapeMachine,
@@ -402,3 +397,5 @@ export const boardMachine = setup({
     },
   },
 });
+
+export type BoardStateT = StateFrom<typeof boardMachine>;

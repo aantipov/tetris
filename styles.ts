@@ -1,4 +1,12 @@
 import { StyleSheet } from "react-native";
+const cellStyle = {
+  rowGap: 0,
+  columnGap: 0,
+  width: 20,
+  height: 20,
+  borderWidth: 2,
+  borderColor: "#E0E0E0",
+};
 
 export const styles = StyleSheet.create({
   container: {
@@ -10,30 +18,23 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   cell: {
-    rowGap: 0,
-    columnGap: 0,
-    width: 25,
-    height: 25,
+    ...cellStyle,
     backgroundColor: "white",
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
   },
   fullCell: {
-    rowGap: 0,
-    columnGap: 0,
-    width: 25,
-    height: 25,
+    ...cellStyle,
     backgroundColor: "black",
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
   },
   fullStrikeCell: {
-    rowGap: 0,
-    columnGap: 0,
-    width: 25,
-    height: 25,
+    ...cellStyle,
     backgroundColor: "#7CB342",
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
+  },
+  gameOverText: {
+    color: "red",
+    shadowColor: "black",
+    elevation: 10,
+    fontSize: 28,
+    fontWeight: "800",
+    marginBottom: 40,
   },
 });
