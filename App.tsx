@@ -1,7 +1,7 @@
 import type { Shape } from "./shapes";
 import { StatusBar } from "expo-status-bar";
 import React, { StrictMode } from "react";
-import { View, Button, Text } from "react-native";
+import { View, Button, Text, useWindowDimensions } from "react-native";
 import Controls from "./components/Controls";
 import { styles } from "./styles";
 import Overlay from "./components/Overlay";
@@ -15,6 +15,7 @@ function hasShapeCell(shape: Shape, row: number, col: number) {
 }
 
 export default function TetrisApp() {
+  const { height, width, scale } = useWindowDimensions();
   const [boardState, sendBoardEvent] = useMachine(boardMachine);
   const activeShape = useSelector(boardState.context.shapeRef, (state) =>
     getActiveShape(
@@ -31,72 +32,76 @@ export default function TetrisApp() {
   return (
     <StrictMode>
       <View style={styles.container}>
-        {/* <Text>S: {JSON.stringify(boardState.value)}</Text> */}
-        <View style={{ flexDirection: "row" }}>
-          <View style={{ borderWidth: 2, borderColor: "gray" }}>
-            {boardState.matches("Initial") && (
-              <Overlay>
-                <Button
-                  title="Start"
-                  onPress={() => sendBoardEvent({ type: "BTN.START" })}
-                />
-              </Overlay>
-            )}
+        <View style={styles.innerContainer}>
+          <View style={{ flexDirection: "row" }}>
+            <View style={{ borderWidth: 2, borderColor: "gray" }}>
+              {boardState.matches("Initial") && (
+                <Overlay>
+                  <Button
+                    title="Start"
+                    onPress={() => sendBoardEvent({ type: "BTN.START" })}
+                  />
+                </Overlay>
+              )}
 
-            {boardState.matches("Paused") && (
-              <Overlay>
-                <Button
-                  title="Resume"
-                  onPress={() => sendBoardEvent({ type: "BTN.RESUME" })}
-                />
-              </Overlay>
-            )}
+              {boardState.matches("Paused") && (
+                <Overlay>
+                  <Button
+                    title="Resume"
+                    onPress={() => sendBoardEvent({ type: "BTN.RESUME" })}
+                  />
+                </Overlay>
+              )}
 
-            {boardState.matches("Finished") && (
-              <Overlay>
-                <View>
-                  <Text style={styles.gameOverText}>Game Over</Text>
-                </View>
-                <Button
-                  title="Reset"
-                  onPress={() => sendBoardEvent({ type: "BTN.RESET" })}
-                />
-              </Overlay>
-            )}
+              {boardState.matches("Finished") && (
+                <Overlay>
+                  <View>
+                    <Text style={styles.gameOverText}>Game Over</Text>
+                  </View>
+                  <Button
+                    title="Reset"
+                    onPress={() => sendBoardEvent({ type: "BTN.RESET" })}
+                  />
+                </Overlay>
+              )}
 
-            {boardState.context.grid.map((row, i) => {
-              const isStrikeRow =
-                isStrikeState && row.every((cell) => cell === 1);
-              return (
-                <View key={i} style={{ flexDirection: "row" }}>
-                  {row.map((cell, j) => {
-                    return (
-                      <View
-                        key={j}
-                        style={
-                          isStrikeRow
-                            ? styles.fullStrikeCell
-                            : cell === 1 ||
-                              (!boardState.matches("Initial") &&
-                                activeShape &&
-                                hasShapeCell(activeShape, i, j))
-                            ? styles.fullCell
-                            : styles.cell
-                        }
-                      />
-                    );
-                  })}
-                </View>
-              );
-            })}
+              {boardState.context.grid.map((row, i) => {
+                const isStrikeRow =
+                  isStrikeState && row.every((cell) => cell === 1);
+                return (
+                  <View key={i} style={{ flexDirection: "row" }}>
+                    {row.map((cell, j) => {
+                      return (
+                        <View
+                          key={j}
+                          style={
+                            isStrikeRow
+                              ? styles.fullStrikeCell
+                              : cell === 1 ||
+                                (!boardState.matches("Initial") &&
+                                  activeShape &&
+                                  hasShapeCell(activeShape, i, j))
+                              ? styles.fullCell
+                              : styles.cell
+                          }
+                        />
+                      );
+                    })}
+                  </View>
+                );
+              })}
+            </View>
+
+            <RightSide
+              boardState={boardState}
+              sendBoardEvent={sendBoardEvent}
+            />
           </View>
 
-          <RightSide boardState={boardState} sendBoardEvent={sendBoardEvent} />
+          <Controls sendBoardEvent={sendBoardEvent} />
+
+          <StatusBar style="auto" />
         </View>
-
-        <Controls sendBoardEvent={sendBoardEvent} />
-
-        <StatusBar style="auto" />
       </View>
     </StrictMode>
   );

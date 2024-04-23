@@ -14,7 +14,7 @@ export default function Controls({ sendBoardEvent }: PropsT) {
       style={{
         flexDirection: "row",
         flexWrap: "wrap",
-        gap: 30,
+        gap: 8,
         marginTop: 30,
         marginBottom: 30,
       }}
@@ -42,7 +42,7 @@ export default function Controls({ sendBoardEvent }: PropsT) {
 
         <View style={{ marginTop: 40 }}>
           <CircleButtonWithIcon
-            onPress={() => sendBoardEvent({ type: "BTN.DROP" })}
+            onPressIn={() => sendBoardEvent({ type: "BTN.DROP" })}
           >
             <MIcons name="vertical-align-bottom" size={48} color="white" />
           </CircleButtonWithIcon>
@@ -60,12 +60,14 @@ export default function Controls({ sendBoardEvent }: PropsT) {
         </CircleButtonWithIcon>
       </View>
 
-      {/* Drop button */}
-      <CircleButtonWithIcon
-        onPress={() => sendBoardEvent({ type: "BTN.ROTATE" })}
-      >
-        <MIcons name="rotate-left" size={48} color="white" />
-      </CircleButtonWithIcon>
+      {/* Rotate button */}
+      <View style={{ marginLeft: 20, marginTop: 60 }}>
+        <CircleButtonWithIcon
+          onPress={() => sendBoardEvent({ type: "BTN.ROTATE" })}
+        >
+          <MIcons name="rotate-left" size={48} color="white" />
+        </CircleButtonWithIcon>
+      </View>
     </View>
   );
 }

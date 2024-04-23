@@ -6,9 +6,9 @@ const initialShapeType = shapesTypes[0];
 const initialShapesTypes = shapesTypes.slice(1);
 const BOARD_GRID_ROWS = 20;
 const BOARD_GRID_COLS = 10;
-const LONG_PRESS_MOVE_DELAY = 50;
+const LONG_PRESS_MOVE_DELAY = 20;
 const AUTO_DOWN_DELAY = 500;
-const DROP_DELAY = 1;
+const DROP_DELAY = 0;
 
 interface BoardContextT {
   grid: BoardGridT;
