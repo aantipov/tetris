@@ -27,6 +27,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "gray",
     flexGrow: 1,
     paddingLeft: 12,
+    paddingTop: 12,
   },
   cell: {
     ...cellStyle,

@@ -21,32 +21,6 @@ export default function RightSide({ boardState, sendBoardEvent }: PropsT) {
       {nextShapeType === null ? null : (
         <NextShapeBoard nextShapeType={nextShapeType} />
       )}
-
-      {/* Pause & Reset Buttons */}
-      <View style={{ marginTop: 10, flexDirection: "column", gap: 20 }}>
-        {(boardState.matches("Running") || boardState.matches("Paused")) && (
-          <View>
-            <Button
-              title={boardState.matches("Paused") ? "resume" : "pause"}
-              onPress={() => {
-                sendBoardEvent({
-                  type: boardState.matches("Paused")
-                    ? "BTN.RESUME"
-                    : "BTN.PAUSE",
-                });
-              }}
-            />
-          </View>
-        )}
-        {!boardState.matches("Initial") && (
-          <View>
-            <Button
-              title="reset"
-              onPress={() => sendBoardEvent({ type: "BTN.RESET" })}
-            />
-          </View>
-        )}
-      </View>
     </View>
   );
 }

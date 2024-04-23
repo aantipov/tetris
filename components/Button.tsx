@@ -42,5 +42,6 @@ const styles = StyleSheet.create({
     borderRadius: 30, // Half of the width/height to make it a perfect circle
     justifyContent: "center", // Centers the icon vertically
     alignItems: "center", // Centers the icon horizontally
+    elevation: 5,
   },
 });

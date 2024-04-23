@@ -1,7 +1,7 @@
 import type { Shape } from "./shapes";
 import { StatusBar } from "expo-status-bar";
 import React, { StrictMode } from "react";
-import { View, Button, Text, useWindowDimensions } from "react-native";
+import { View, Button, Text } from "react-native";
 import Controls from "./components/Controls";
 import { styles } from "./styles";
 import Overlay from "./components/Overlay";
@@ -15,7 +15,6 @@ function hasShapeCell(shape: Shape, row: number, col: number) {
 }
 
 export default function TetrisApp() {
-  const { height, width, scale } = useWindowDimensions();
   const [boardState, sendBoardEvent] = useMachine(boardMachine);
   const activeShape = useSelector(boardState.context.shapeRef, (state) =>
     getActiveShape(
@@ -98,7 +97,7 @@ export default function TetrisApp() {
             />
           </View>
 
-          <Controls sendBoardEvent={sendBoardEvent} />
+          <Controls boardState={boardState} sendBoardEvent={sendBoardEvent} />
 
           <StatusBar style="auto" />
         </View>
