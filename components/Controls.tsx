@@ -75,6 +75,7 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
               sendBoardEvent({ type: "BTN.LEFT.LONG_PRESSED" })
             }
             onPressOut={() => sendBoardEvent({ type: "BTN.LEFT.RELEASED" })}
+            disabled={!boardState.matches("Running")}
           >
             <MIcons name="arrow-back" size={48} color="white" />
           </CircleButtonWithIcon>
@@ -88,6 +89,7 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
               sendBoardEvent({ type: "BTN.DOWN.LONG_PRESSED" })
             }
             onPressOut={() => sendBoardEvent({ type: "BTN.DOWN.RELEASED" })}
+            disabled={!boardState.matches("Running")}
           >
             <MIcons name="arrow-downward" size={48} color="white" />
           </CircleButtonWithIcon>
@@ -95,6 +97,7 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
           <View style={{ marginTop: 40 }}>
             <CircleButtonWithIcon
               onPressIn={() => sendBoardEvent({ type: "BTN.DROP" })}
+              disabled={!boardState.matches("Running")}
             >
               <MIcons name="vertical-align-bottom" size={48} color="white" />
             </CircleButtonWithIcon>
@@ -109,6 +112,7 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
               sendBoardEvent({ type: "BTN.RIGHT.LONG_PRESSED" })
             }
             onPressOut={() => sendBoardEvent({ type: "BTN.RIGHT.RELEASED" })}
+            disabled={!boardState.matches("Running")}
           >
             <MIcons name="arrow-forward" size={48} color="white" />
           </CircleButtonWithIcon>
@@ -118,6 +122,7 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
         <View style={{ marginLeft: 20, marginTop: 60 }}>
           <CircleButtonWithIcon
             onPress={() => sendBoardEvent({ type: "BTN.ROTATE" })}
+            disabled={!boardState.matches("Running")}
           >
             <MIcons name="rotate-left" size={48} color="white" />
           </CircleButtonWithIcon>
