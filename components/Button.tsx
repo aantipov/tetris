@@ -9,6 +9,7 @@ interface PropsT {
   onPressIn?: () => void;
   onPressOut?: () => void;
   disabled?: boolean;
+  large?: boolean;
   children: React.ReactNode;
 }
 
@@ -22,6 +23,7 @@ export default function CircleButtonWithIcon({
   onPressIn,
   onPressOut,
   disabled = false,
+  large = false,
   children,
 }: PropsT) {
   return (
@@ -34,6 +36,7 @@ export default function CircleButtonWithIcon({
       disabled={disabled}
       style={({ pressed }) => [
         styles.button,
+        large && styles.buttonLarge,
         pressed && styles.buttonPressed,
         disabled && styles.buttonDisabled,
       ]}
@@ -59,6 +62,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     backgroundColor: COLOR,
     transform: [{ scale: 1 }], // no scale by default
+  },
+  buttonLarge: {
+    width: 70, // Diameter of the circle
+    height: 70, // Diameter of the circle
+    borderRadius: 35, // Half of the width/height to make it a perfect circle
   },
   buttonPressed: {
     backgroundColor: COLOR_PRESSED, // darker when pressed

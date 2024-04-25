@@ -63,12 +63,12 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
           flexDirection: "row",
           flexWrap: "wrap",
           gap: 8,
-          marginTop: 0,
+          marginTop: -10,
           marginBottom: 30,
         }}
       >
         {/* Move Left Button */}
-        <View style={{ paddingTop: 40 }}>
+        <View style={{ paddingTop: 55 }}>
           <CircleButtonWithIcon
             onPressIn={() => sendBoardEvent({ type: "BTN.LEFT.PRESSED" })}
             onLongPress={() =>
@@ -90,7 +90,7 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
             <MIcons name="vertical-align-bottom" size={48} color="white" />
           </CircleButtonWithIcon>
 
-          <View style={{ marginTop: 28 }}>
+          <View style={{ marginTop: 50 }}>
             <CircleButtonWithIcon
               onPressIn={() => sendBoardEvent({ type: "BTN.DOWN.PRESSED" })}
               onLongPress={() =>
@@ -105,7 +105,7 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
         </View>
 
         {/* Move Right button */}
-        <View style={{ paddingTop: 40 }}>
+        <View style={{ paddingTop: 55 }}>
           <CircleButtonWithIcon
             onPressIn={() => sendBoardEvent({ type: "BTN.RIGHT.PRESSED" })}
             onLongPress={() =>
@@ -119,10 +119,11 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
         </View>
 
         {/* Rotate button */}
-        <View style={{ marginLeft: 20, marginTop: 60 }}>
+        <View style={{ marginLeft: 20, marginTop: 40 }}>
           <CircleButtonWithIcon
             onPress={() => sendBoardEvent({ type: "BTN.ROTATE" })}
             disabled={!boardState.matches("Running")}
+            large
           >
             <MIcons name="rotate-left" size={48} color="white" />
           </CircleButtonWithIcon>
