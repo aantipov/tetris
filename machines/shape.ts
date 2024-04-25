@@ -65,14 +65,6 @@ export const shapeMachine = setup({
     LEFT: {
       actions: [
         assign(({ context: { type, position, rotation }, event }) => {
-          const shape = getActiveShape(type, rotation, position);
-          if (shape.some(([, c]) => c === 0)) {
-            return {};
-          }
-          // Check if one of the cells has a filled board cell to the left of it
-          if (shape.some(([r, c]) => event.board[r][c - 1] === 1)) {
-            return {};
-          }
           return {
             position: [position[0], position[1] - 1],
           };
@@ -82,14 +74,6 @@ export const shapeMachine = setup({
     RIGHT: {
       actions: [
         assign(({ context: { type, position, rotation }, event }) => {
-          const shape = getActiveShape(type, rotation, position);
-          if (shape.some(([, c]) => c === 9)) {
-            return {};
-          }
-          // Check if one of the cells has a filled board cell to the right of it
-          if (shape.some(([r, c]) => event.board[r][c + 1] === 1)) {
-            return {};
-          }
           return {
             position: [position[0], position[1] + 1],
           };

@@ -1,6 +1,7 @@
 import { assign, setup, ActorRefFrom, raise, cancel, StateFrom } from "xstate";
 import { shapesTypes, type BoardGridT, type ShapeTypeT } from "../shapes";
 import { getActiveShape, shapeMachine } from "./shape";
+import * as Haptics from "expo-haptics";
 
 const initialShapeType = shapesTypes[0];
 const initialShapesTypes = shapesTypes.slice(1);
@@ -62,6 +63,16 @@ function canMoveDown(context: BoardContextT) {
   const shape = getActiveShape(type, rotation, position);
   return shape.every(([r, c]) => r < 19 && context.grid[r + 1][c] === 0);
 }
+function canMoveLeft(context: BoardContextT) {
+  const { type, position, rotation } = context.shapeRef.getSnapshot().context;
+  const shape = getActiveShape(type, rotation, position);
+  return shape.every(([r, c]) => c > 0 && context.grid[r][c - 1] === 0);
+}
+function canMoveRight(context: BoardContextT) {
+  const { type, position, rotation } = context.shapeRef.getSnapshot().context;
+  const shape = getActiveShape(type, rotation, position);
+  return shape.every(([r, c]) => c < 9 && context.grid[r][c + 1] === 0);
+}
 
 function getFullRowsCount(grid: BoardGridT) {
   return grid.filter((row) => row.every((cell) => cell === 1)).length;
@@ -106,18 +117,30 @@ export const boardMachine = setup({
     ),
     stopAutoDown: cancel("autoDown"),
     moveLeft: ({ context }) => {
-      context.shapeRef.send({ type: "LEFT", board: context.grid });
+      if (canMoveLeft(context)) {
+        context.shapeRef.send({ type: "LEFT", board: context.grid });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } else {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
     },
     moveRight: ({ context }) => {
-      context.shapeRef.send({ type: "RIGHT", board: context.grid });
+      if (canMoveRight(context)) {
+        context.shapeRef.send({ type: "RIGHT", board: context.grid });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } else {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
     },
     moveDown: ({ context }) => {
       if (canMoveDown(context)) {
         context.shapeRef.send({ type: "DOWN", board: context.grid });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     },
     rotate: ({ context }) => {
       context.shapeRef.send({ type: "ROTATE", board: context.grid });
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     },
     setNewShape: ({ context }) => {
       context.shapeRef.send({ type: "RESET", shape: context.nextShape });
@@ -126,7 +149,7 @@ export const boardMachine = setup({
     raiseNewShapeSet: raise({ type: "NEW_SHAPE_SET" }, { delay: 300 }),
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EAZgCMDEpOnjxAdgbiAbACYAHKoA0IAJ6IArOsUlNR8QE4jDI6o3j16gL4u9aLBBIBJAby50ABt8YhIqAgBBMnpmYQ5uPkFhMQQAFkUjEgz1eytVBklxNLTNNL1DBElTcVlNJQVFNMlFbTcPDGwSAAV0AFdYSFDSSioAVQBZCkYWJBAEgOS51LSrGSardQYVI1b1SV0DRALNEltWq2bVJUzxdpBPLoAxLn9YAAshwhHqWhn4ziLITLRCmBhmRQKJyZbYMLaHSqSfIyVSaGzOBxbcRGe6PbwvN6fXAiWA8dA8MAkdAAMwpmAAFLZtgBKHB4kgErgfSD-OYLJLA0CpLTiGRbDLVRT7bHaCqIJGXM6KfKacFqSTaVzuB6dbxkPoCfwCKDDHqRMY0XnsQEClKIVZmBRGIrXNGi1RpBGIJqnTSSZ1SqxlINaXG68gGo1QEgTMBknwQIJgHDmggAeQA+gARNMAdSIVvmNv4gtE8sUchIQaMVk2GtU+SKcqq2yyNcsuwYDisakUYa8EcNr2jsfjieTqczOfzdEks2tiRLdoQWwYaRI22UKjkzic4mb0lVVaMFiU6lUcmqd217P1Q+NMbj6ATSd849NABkKE8CCQP2miAAcQzbpRhoLNC35JcQQQTJVBIDRtk9eFWilA9SngpEGE0LRPTVax+y6O8o0fMdXxfZNvnIHxAIACV-f8gJAsCKAguI+WLJYhXlK4NxuTZVArD1-XQxR4LsdRNkk1pwVKQi9UjYdSOfcc3yTU1p1IRjgNA6hwMgzjS1SGESC0VVpLKQSrHQwpzGkHdxHqGwWnkwcSNHFTyPfKiszINNugMxcuLLKpJGaBD1CkS4PRw1QjAPUwzAVLYNRsWsbFc4ilI8ii1MosIvx-HoWLY+ciyCozEHydcK3PUo5DUZxyiOKoTFqLtrgcE9FB68FMsUh8ctUijTTIGj6OKvTWMCoFl2qa4zjinqWmw8F9gPNqNwcNQ4s0HrlD7G9wyywan1ykafLzUhdKofT2IXWaYPm9RTOcQpZNbPaEqsR0VvPTZzOw-r7xHM7hu8sI-KiAhpnu8rHu4hAgysEhMhWtJRU9HD9xa6ofpIKRlH+rQ4SBo6BxO0GyMpPA+h4HhBA-MBaW6TA4EGXAqMK39KC-SI7rKqDgtSIN12uTYGCsMKpesTQDw9cTTGkNJsPqVFgfcsHX1p+nGeZnhWfZoYJjTAA1ChwloyJugt7mZttGD8ngqQ0lXJlwVRA9IReuxYWVHs-TSDXsq1mm6YZgQyC4KB3gNtnYA50bxp5ig+YFgEKrmpqzjSSxTBDXavSqBWNyVtdVbUTRg9O6mSB1iOo5juOjdwE3zct62LbGujYkFwy5uUWp6u2OKpY9dR5ZrM4R+l0pPUkavo3rwQs1QAB3ARDYTr4wk08hU4ofnprhoXKoQTUIusZway2ZUccqCxTnbX2kRdTJF7r8OV-Xzf48TtuKAZioFbG22Yrr22gojaQPYzjSTXBoXYuRmwehRmjVEUgay1lDOTIiA0l5fwEKvDeW9-5m0AcAzuYCZxzgzgjEKO5JCyG2LfNYOE0TNkhCjSKJ5qhdlyKeD+WZMCoDYGwYcOAAFAJAYAzSEDhbymKGYSShR1BXBaGse+iA0RJVziobQqoMb2EEcI0R4jJEUNAbImhHFM5PWxIwkokl56WF2popGDZZCu32HnKQuQcQ4IUiDOuqBdYAFsADCqAghBC5CWWi6ABCJnEVRbo5pLQn37k9VotRNg1l0c4IM1xmwZDFNiZoWxdgOCWh-PAISGYRKiTE7ggh4mJJiadTAUBxFWyIFmL8QCCBjQANKwz7rYqBMtZAtCUKsbq3jkEtFMuCOQ1xPS50sDUupqAGnRNiS0hJSSOldONDgHpfTyGDJ8CM2cYy6HCkki9VYa5ITaAbBeIuF4lHLOaP6GUaJNlhMibs5pAhWmHOjGC9pUAqA8EwFwAA1smcJfMyAZieGMD8H4Mx+VzFQORZ9nAHD4gGAOeELDIIcATLspQFCXB+tcAF9SgVNLiQcqF4Q4x8GNEQMAa8qDvHQGwZMNACAZiIBQXMUjO74uXJFZwCFtCyUQpCbEHDBKmT2u85oPyuyMu2cyvZoK2VKSoJy4cPK+UCqFTgcVkqLHkL+Bk8ZIVIr42aGuSKZQjDtgnrjUUjDHLXH9HCIMGog4BLckpWpgLGmGshSas13LeX8sFcmW1UrQEipubQh2iMKk+w0BqJwFh7BNj9bZQNGCQ1+jKG4bUAhUAQDgMIPEObIEussBudslgnCeilmFZskksjcMco5ewCgtQdAHH4AIwQ23yIQP6rtNge2qIbHIZqiItCYUrq6bdHpw1Tq6L0AYkB51n1dqcDIgcJYbuqMgnqCEwpSlWKPRyh6dQDk5NyCA57ZV+ngjhGwud8ijqLkUCt2gq2SRrR+28eC-0wQcCiVcyEuyoV9ZURyL1ISWB+jYBstZrxHsCZramiHEbKFOIheBKE9qYflNILIhMkIewcD1D+Q0vJJgo-Qg4ZgMYEbEtwhjVQMbwTRsoZo1gDiTs-bgoJXGw66wEEzFmf8z02Lud6bQCEMalHbMqf68tJawIOiopwqjOOh0-ipxuscSGaYerm+h88FUqovEUNG8t9iLT9Pkc82FvX+JI5Gh8y9CE-0c7+rTLnUj+dkNYOKUJthFFE9cR0J5zhOBsM84xIixHGl46kHcqCIP51St65sawZClFVGsFB24q4RspsEmNwLWVtOHMV8suxS6OMDG6SwzYTCoOWXYAoJ5JYhfk6RqNWydksv2V1o53XYvtpK6qLIcIBswZ7MNlqgl1wHB3JLCw+x-ktbwW1plsaQXxofA96FsKEVgB6yuQotRWgZCUFU3YHDtiyAvKtDLqIex6sW3G41D5TX03Ncmq1b31sLtUWsKs2w3S3y0AcAHMgTsg9+26OtLggA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QCMD2BDAThAxAIQBUA5AOgCUBRAZQoIG0AGAXUVAAdVYBLAFy9QB2rEAA9EARgAcAFhIA2AMwB2AKxK5kgEwKpagDQgAnohWa5JBkoUBOcXKW3l0lQF8XBtFggkAkgN5c6AA2+MQkVAQAgmT0zMIc3HyCwmIICtJKJMpKDJpKdioM4toGxgjFViSS1pKSShlKWgwybh4Y2CQACugArrCQoaSUVACqALIUjCxIIAkByTOpCmok1so6Sppq1mripYhy4iokmrlyDNLSDLlFrSCeHQBiXP6wABYDhEPUtFPxnPMhItEHlLCQrAoFHlCtdTnJ9uVrOd5NVTGY5KdlncHt5nq8PrgRLAeOgeGASOgAGZkzAAChhDAAlDgcSQ8Vx3pA-jM5kkgaBUppJAoGCcLvk8ppxMtJPCjBJrNZZNsNJYFIdZZpse1vGQegJ-AIoIMupERjRuewAXyUoh1crtFsodVLuJrAjVMdCjVhZopVdZdqvOR9YaoCQxmAST4IEEwDgzQQAPIAfQAIkmAOpES2za38fmiCT5cSrSQqRVS2VI6UI8TXL07ZY5ORyNb2IMdPUGl7hyPR2PxxOpjPZujiaZWxIF20IU4XCyWa46YqOhR15qinbl5RmcT77Sd3Wh3sRqPoGNx3yDk0AGQojwIJFvSaIAHEU51hjQ07neTPgQQVRzAxa5JAYaxNCVYppDraRywsLYhQYDEVDkNEjxDHsjTPAcr0veMvnIHw3wACSfF930-b8KF-OIeXzBYBQkaQ7AsaQ8mUdDWJyTQ4IQ3JTHA1D0L9TDuzDXCL0Ha84xNUdSEoj8v2oH8-0YwtUlUUUhXAqDGmkex3XlcorlLSR6wPBRhR2cQlHEk8cP7aT8JvIi0zIJNOnU6cmKLcpxFY+RtGldRLgguo6yg44MnLexhREyQHOwvtzwI2TCLCe9Hy6Gi6MnPNfM0xAkVkCVWzWTZ0LrFR6xON1AvqDIVBsLV3HuHUsMk5z0oIk0yBI8jctU2ifMBWcYMyOoWo4wLnBUGq6qlWwMkuVQbGS7q0pkvr3KzUgVKoNT6KncbAJg8wWqOSCIVqFRYJM6URROdCLLdRp0PQzbTx6na3LCTyogISYTsKs7mPKWEskOFRwKaOE60hHTXv3awPrQ1x2tZCSfu2q88B4ARbzAalb0EKBOkwOB+lwIjsqfSh70iY6Cv-PzUhqBRwRWo4LMgjY60UTQSEMi4tlh6wLkg76nLx8kCaJkmeDJo1KepgYxiTAA1ChwlIyJOl1+mxptQCNRIWG3TUdC1msh6yjsqVwSOdH4OkJU2raYMcdlvD5cJsguCgN5lfJtXYBp-rBoZigmZZ-4iomv0ubsJFtF2e7rMFqERfOaQRS0Yo2xl1K-ZIBXA+D0PVapiONe13WqH1w3iLI2JWY0ia5GcKpJdi9tSrrTZS3yNQoTbNQZExr2u0c8MFbTVAAHcBHDyO9uzchY4oZnRtBtnioQVULDqZpGocWq9hMpR8nkBgdD5lrlmlrHOp9+fCcXle1-rnWUybg2FB0z7RNgBCGFRRQOA4oZKQEFFBKARN3WQ5Z2xbHqBcDIJdy6f2XqvWukdNZ-wAYbYBY4JwJ3Bv5aUtURYcUVIcOyapJAejdBYNCqhfTVG3FgtMmBUBsDYL2HAhCgHEKAQpUB7MJDpEyFBIomhWKHAcPfBE1RMiBUKNZVU+c0I8L4QIoRIj-7N3ESA8hDFE7nWWKWS4UEYEtVeuuEySJrAkECn6I4UIdDiywXgVAPAeCoAALYAGFUBBCCByAspF0ACFjEIoinQzQWn3p3c6jQuaQQrM4XIUFZROLKBkHSyxWKnGtq2NQvj-GBNCeEyJ3BBAxLiZE2WmAoBCP1kQNM95-4EAGgAaRBh3Sx4DHBuLsk4bcw8FomSUWKEsihDLzQUFUgJwSwkRKiY02J8TWntKNDgTp3TRF9J8IM8cwzKGCigsLd24otFtkOHKMoczTj5FYp42G1RVk1I2fU6JOyWnhiabsqAVAeCYC4AAa3jCEpmZAUyPBGLeW8KZPKZioJIw+VZLocXeTfdCmwEGzIcKsOBktDjaCcD89ZdStkCBBUC8IUY+BGiIGAJeVA3joDYPGGgBAUxEAoJmYxgCsWzkdMLDQ5x6igQhDMso6hZF1CeaxD5KEaW1M2Q0hlgLTxUBZb2dlnLuW8pwEKkVYj-6-FSSM-y2g0Yi3rBxO2KgKymERkULI+Sji5BqFIaQmq-n0sZfqw1bKOVcp5fGC1oqSH8ouRQ02EMynCxQlWZ0brDgFOkV6rROhCh5IDW4dqAhUAQDgMIHESawFULyBbWUUDJSwMhAiaKJwSnSiuLNDar9gx+ACMEGtUjyiqAbUZPFVZ745vKEKcw5ZTjSg0ddOQmFuh9EgMO7FOx5CtnRJZPI9hEEyCyBBHRpxtDd09h1YM7JOQQC3RKiy87orOCRNZdUnrSz5t9UWlofbZ4pUfYBNEDarbqArJCGQCJrLCysPdCoIolS5Cwb9OMwGIZqFFJbHYEHbbQcetKSQL1J6mCVQlVDcsMoYaoXYTI+cdj2AxMsPij187mFUIw1iNg7DXuxnPKS6UFbE1JmHfBm6LFXMQOoYjp9Cj53doShVEh3WrDzvWDELjmiUbLhXIOIcVYU3Ew+yTyaqHOFkFbeCbqb7duJQ7VTSILhIK0Fce+vicHf2MzR1I+5rgonYTWVOV9FWsOuIqCCUEdjOHEHo-hgijQ+YkMUVx+QRR5FsKiZTCBJainguBCldyH5BrpTq0NiXTO1t86oTIuRbGbBqGsFqCJTCpcsPWSe6oiMle1QC5puM2m9iS+UcCxw6uTsa8sGd9hLMMNODUUwUhrA9f+ds-rOFytgohdCsAw3F1cwMlYdQFT7PSf83YeswkuLVBWQB48KVy7VNpb1tboLmUBKNZG01u3KsjoUZLMlzQ1hvKFHYD053DibngRoNYJaXBAA */
   id: "board",
   initial: "Initial",
   context: ({ spawn }) => ({
@@ -206,9 +229,9 @@ export const boardMachine = setup({
           states: {
             Idle: {
               on: {
-                "BTN.LEFT.LONG_PRESSED": "ButtonLeftPressed",
-                "BTN.RIGHT.LONG_PRESSED": "ButtonRightPressed",
-                "BTN.DOWN.LONG_PRESSED": "#board.Running.ButtonDownPressed",
+                "BTN.LEFT.LONG_PRESSED": "BtnLeftLongPressed",
+                "BTN.RIGHT.LONG_PRESSED": "BtnRightLongPressed",
+                "BTN.DOWN.LONG_PRESSED": "#board.Running.BtnDownPressed",
                 "BTN.DROP": "#board.Running.Dropping",
                 "BTN.LEFT.PRESSED": {
                   actions: ["moveLeft"],
@@ -224,7 +247,7 @@ export const boardMachine = setup({
                 },
               },
             },
-            ButtonLeftPressed: {
+            BtnLeftLongPressed: {
               on: {
                 "BTN.LEFT.RELEASED": "Idle",
                 "MOVE.SHAPE.LEFT": {
@@ -243,7 +266,7 @@ export const boardMachine = setup({
               ),
               exit: cancel("moveShapeLeft"),
             },
-            ButtonRightPressed: {
+            BtnRightLongPressed: {
               on: {
                 "BTN.RIGHT.RELEASED": "Idle",
                 "MOVE.SHAPE.RIGHT": {
@@ -265,7 +288,7 @@ export const boardMachine = setup({
           },
         },
 
-        ButtonDownPressed: {
+        BtnDownPressed: {
           on: {
             "BTN.DOWN.RELEASED": "#board.Running.MetaIdle",
             MOVE_SHAPE_DOWN: [
@@ -369,6 +392,11 @@ export const boardMachine = setup({
                         linesCleared: context.linesCleared + strikedRows,
                       };
                     }),
+                    () => {
+                      Haptics.notificationAsync(
+                        Haptics.NotificationFeedbackType.Success
+                      );
+                    },
                   ],
                 },
               },

@@ -17,7 +17,8 @@
     "react-dom": "18.2.0",
     "react-native": "0.73.5",
     "react-native-web": "~0.19.6",
-    "xstate": "^5.10.0"
+    "xstate": "^5.10.0",
+    "expo-haptics": "~12.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

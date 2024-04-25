@@ -63,7 +63,7 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
           flexDirection: "row",
           flexWrap: "wrap",
           gap: 8,
-          marginTop: 10,
+          marginTop: 0,
           marginBottom: 30,
         }}
       >
@@ -81,25 +81,25 @@ export default function Controls({ boardState, sendBoardEvent }: PropsT) {
           </CircleButtonWithIcon>
         </View>
 
-        {/* MoveDown & Drop buttons */}
+        {/* Drop & MoveDown buttons */}
         <View>
           <CircleButtonWithIcon
-            onPressIn={() => sendBoardEvent({ type: "BTN.DOWN.PRESSED" })}
-            onLongPress={() =>
-              sendBoardEvent({ type: "BTN.DOWN.LONG_PRESSED" })
-            }
-            onPressOut={() => sendBoardEvent({ type: "BTN.DOWN.RELEASED" })}
+            onPressIn={() => sendBoardEvent({ type: "BTN.DROP" })}
             disabled={!boardState.matches("Running")}
           >
-            <MIcons name="arrow-downward" size={48} color="white" />
+            <MIcons name="vertical-align-bottom" size={48} color="white" />
           </CircleButtonWithIcon>
 
-          <View style={{ marginTop: 40 }}>
+          <View style={{ marginTop: 28 }}>
             <CircleButtonWithIcon
-              onPressIn={() => sendBoardEvent({ type: "BTN.DROP" })}
+              onPressIn={() => sendBoardEvent({ type: "BTN.DOWN.PRESSED" })}
+              onLongPress={() =>
+                sendBoardEvent({ type: "BTN.DOWN.LONG_PRESSED" })
+              }
+              onPressOut={() => sendBoardEvent({ type: "BTN.DOWN.RELEASED" })}
               disabled={!boardState.matches("Running")}
             >
-              <MIcons name="vertical-align-bottom" size={48} color="white" />
+              <MIcons name="arrow-downward" size={48} color="white" />
             </CircleButtonWithIcon>
           </View>
         </View>
