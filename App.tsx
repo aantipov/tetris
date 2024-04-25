@@ -7,7 +7,6 @@ import { styles } from "./styles";
 import Overlay from "./components/Overlay";
 import { useMachine, useSelector } from "@xstate/react";
 import { boardMachine } from "./machines/board";
-import { getActiveShape } from "./machines/shape";
 import RightSide from "./components/RightSide";
 
 function hasShapeCell(shape: Shape, row: number, col: number) {
@@ -16,12 +15,9 @@ function hasShapeCell(shape: Shape, row: number, col: number) {
 
 export default function TetrisApp() {
   const [boardState, sendBoardEvent] = useMachine(boardMachine);
-  const activeShape = useSelector(boardState.context.shapeRef, (state) =>
-    getActiveShape(
-      state.context.type,
-      state.context.rotation,
-      state.context.position
-    )
+  const activeShape = useSelector(
+    boardState.context.shapeRef,
+    (state) => state.context.activeShape
   );
 
   const isStrikeState = boardState.matches({

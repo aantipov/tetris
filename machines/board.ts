@@ -1,6 +1,6 @@
 import { assign, setup, ActorRefFrom, raise, cancel, StateFrom } from "xstate";
 import { shapesTypes, type BoardGridT, type ShapeTypeT } from "../shapes";
-import { getActiveShape, shapeMachine } from "./shape";
+import { shapeMachine } from "./shape";
 import * as Haptics from "expo-haptics";
 
 const initialShapeType = shapesTypes[0];
@@ -59,19 +59,16 @@ function createBoard(): BoardGridT {
 }
 
 function canMoveDown(context: BoardContextT) {
-  const { type, position, rotation } = context.shapeRef.getSnapshot().context;
-  const shape = getActiveShape(type, rotation, position);
-  return shape.every(([r, c]) => r < 19 && context.grid[r + 1][c] === 0);
+  const { activeShape } = context.shapeRef.getSnapshot().context;
+  return activeShape.every(([r, c]) => r < 19 && context.grid[r + 1][c] === 0);
 }
 function canMoveLeft(context: BoardContextT) {
-  const { type, position, rotation } = context.shapeRef.getSnapshot().context;
-  const shape = getActiveShape(type, rotation, position);
-  return shape.every(([r, c]) => c > 0 && context.grid[r][c - 1] === 0);
+  const { activeShape } = context.shapeRef.getSnapshot().context;
+  return activeShape.every(([r, c]) => c > 0 && context.grid[r][c - 1] === 0);
 }
 function canMoveRight(context: BoardContextT) {
-  const { type, position, rotation } = context.shapeRef.getSnapshot().context;
-  const shape = getActiveShape(type, rotation, position);
-  return shape.every(([r, c]) => c < 9 && context.grid[r][c + 1] === 0);
+  const { activeShape } = context.shapeRef.getSnapshot().context;
+  return activeShape.every(([r, c]) => c < 9 && context.grid[r][c + 1] === 0);
 }
 
 function getFullRowsCount(grid: BoardGridT) {
@@ -350,10 +347,9 @@ export const boardMachine = setup({
                 assign({
                   grid: ({ context }) => {
                     let newGrid = context.grid.map((row) => [...row]);
-                    const { type, position, rotation } =
+                    const { activeShape } =
                       context.shapeRef.getSnapshot().context;
-                    const shape = getActiveShape(type, rotation, position);
-                    shape.forEach(([r, c]) => (newGrid[r][c] = 1));
+                    activeShape.forEach(([r, c]) => (newGrid[r][c] = 1));
                     return newGrid;
                   },
                 }),
